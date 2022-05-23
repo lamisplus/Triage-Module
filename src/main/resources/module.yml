@@ -1,0 +1,17 @@
+basePackage: org.lamisplus.modules.triage
+name: Triage
+store: true
+menus:
+  - icon:
+    disabled: false
+    name: Triage
+    state: triage
+    url: /across/resources/static/triage/index.html
+umdLocation: /across/resources/static/triage/index.html
+webModules:
+  - breadcrumb: Triage
+    name: TriageModule
+    path: triage
+    position: 99
+
+
