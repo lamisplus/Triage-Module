@@ -13,7 +13,7 @@ import {token, url as baseUrl} from "../../../api";
 const AddPatientVitals = (props) => {
     let history = useLocation();
     const navigate = useNavigate();
-    const { id } = history.state;
+    const { patientObj } = history.state;
     const { handleSubmit, control } = useForm();
     const onSubmit = async (data) => {
         try {
@@ -23,15 +23,15 @@ const AddPatientVitals = (props) => {
                 "diastolic": data.Diastolic,
                 "encounterDate": format(new Date(data.DateOfVitalSigns.toString()), 'yyyy-MM-dd'),
                 "height": data.Height,
-                "personId": id,
+                "personId": patientObj.id,
                 "systolic": data.Systolic,
                 "pulse": data.Pulse,
                 "respiratoryRate": data.RespiratoryRate,
                 "temperature": data.Temperature,
-                "visitId": 6
+                "visitId": patientObj.visitId
             }
             await axios.post(`${baseUrl}patient/vital-sign`, InData, { headers: {"Authorization" : `Bearer ${token}`} });
-            navigate('/');
+            navigate('/patient-dashboard', { state: { patientObj: patientObj } });
             await Swal.fire({
                 icon: 'success',
                 text: 'Add Patient Vital successfully',
@@ -50,7 +50,7 @@ const AddPatientVitals = (props) => {
     };
 
     const handleCancel = async () => {
-        navigate('/');
+        navigate('/patient-dashboard', { state: { patientObj: patientObj } });
     };
 
     return (

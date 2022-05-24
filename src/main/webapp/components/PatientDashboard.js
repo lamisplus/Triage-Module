@@ -80,7 +80,7 @@ const PatientDashboard = () => {
                             >
                                 <Link style={{ textDecoration: 'none' }}
                                       to={ `/add-patient-vital` }
-                                      state={{ id: patientObj.id }}
+                                      state={{ patientObj: patientObj }}
                                 >
                                     <Button
                                         variant="contained"
