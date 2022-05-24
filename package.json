@@ -1,8 +1,8 @@
 {
   "name": "triage",
   "version": "0.1.0",
-  "private": true,
   "homepage": ".",
+  "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.13.2",
     "@emotion/react": "^11.9.0",
