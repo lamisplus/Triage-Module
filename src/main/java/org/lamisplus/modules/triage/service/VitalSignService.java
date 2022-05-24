@@ -52,7 +52,8 @@ public class VitalSignService {
 
     public List<VitalSignDto> getVitalSign() {
         return vitalSignRepository.getVitalSignByArchived (0)
-                .stream ().map (this::convertVitalSignEntityToVitalSignDto)
+                .stream ()
+                .map (this::convertVitalSignEntityToVitalSignDto)
                 .collect (Collectors.toList ());
     }
 
