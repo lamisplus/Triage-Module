@@ -39,6 +39,7 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long> {
     private Long visitId;
     @NotNull
     private Double systolic;
+
     private Integer archived;
     @NotNull
     @Column(name = "uuid", updatable = false, nullable = false)

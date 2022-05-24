@@ -34,6 +34,7 @@ public class VitalSignService {
         getExistingPerson (personId);
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
+        vitalSign.setArchived (0);
         VitalSign saveVitalSign = vitalSignRepository.save (vitalSign);
         return convertVitalSignEntityToVitalSignDto (saveVitalSign);
     }
