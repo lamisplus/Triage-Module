@@ -34,6 +34,7 @@ public class VitalSignService {
         getExistingPerson (personId);
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
+        vitalSign.setArchived (0);
         VitalSign saveVitalSign = vitalSignRepository.save (vitalSign);
         return convertVitalSignEntityToVitalSignDto (saveVitalSign);
     }
@@ -51,7 +52,8 @@ public class VitalSignService {
 
     public List<VitalSignDto> getVitalSign() {
         return vitalSignRepository.getVitalSignByArchived (0)
-                .stream ().map (this::convertVitalSignEntityToVitalSignDto)
+                .stream ()
+                .map (this::convertVitalSignEntityToVitalSignDto)
                 .collect (Collectors.toList ());
     }
 
