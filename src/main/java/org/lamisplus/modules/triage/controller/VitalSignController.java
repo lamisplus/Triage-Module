@@ -35,10 +35,16 @@ public class VitalSignController {
         return ResponseEntity.ok (vitalSignService.getVitalSignById (id));
     }
 
+    @GetMapping("/person/{personId}")
+    public ResponseEntity<List<VitalSignDto>> getVitalSignByPersonId(@PathVariable("personId") Long personId) {
+        return ResponseEntity.ok (vitalSignService.getVitalSignByPersonId (personId));
+    }
+
     @GetMapping("/post-service")
     public ResponseEntity<List<TriagePostService>> getVitalSign() {
         return ResponseEntity.ok (triagePostServiceRepository.findAll ());
     }
+
 
 
 
