@@ -13,7 +13,7 @@ import {token, url as baseUrl} from "../../../api";
 const AddPatientVitals = (props) => {
     let history = useLocation();
     const navigate = useNavigate();
-    const { id } = history.state;
+    const { patientObj } = history.state;
     const { handleSubmit, control } = useForm();
     const onSubmit = async (data) => {
         try {
@@ -23,15 +23,15 @@ const AddPatientVitals = (props) => {
                 "diastolic": data.Diastolic,
                 "encounterDate": format(new Date(data.DateOfVitalSigns.toString()), 'yyyy-MM-dd'),
                 "height": data.Height,
-                "personId": id,
+                "personId": patientObj.id,
                 "systolic": data.Systolic,
                 "pulse": data.Pulse,
                 "respiratoryRate": data.RespiratoryRate,
                 "temperature": data.Temperature,
-                "visitId": 6
+                "visitId": patientObj.visitId
             }
             await axios.post(`${baseUrl}patient/vital-sign`, InData, { headers: {"Authorization" : `Bearer ${token}`} });
-            navigate('/');
+            navigate('/patient-dashboard', { state: { patientObj: patientObj } });
             await Swal.fire({
                 icon: 'success',
                 text: 'Add Patient Vital successfully',
@@ -46,15 +46,11 @@ const AddPatientVitals = (props) => {
         }
     };
     const onError = async () => {
-        await Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'An error occurred while saving patient vitals!',
-        });
+        return;
     };
 
     const handleCancel = async () => {
-        navigate('/');
+        navigate('/patient-dashboard', { state: { patientObj: patientObj } });
     };
 
     return (
@@ -88,6 +84,7 @@ const AddPatientVitals = (props) => {
                                                     helperText={error ? error.message : null}
                                                 />
                                             )}
+                                            rules={{ required: 'Date Of Vitals Required' }}
                                         />
                                     </LocalizationProvider>
                                 </FormControl>
@@ -102,6 +99,7 @@ const AddPatientVitals = (props) => {
                                             <TextField
                                                 label="Pulse(bpm)"
                                                 id="Pulse"
+                                                type={"number"}
                                                 variant="outlined"
                                                 value={value}
                                                 onChange={onChange}
@@ -109,6 +107,7 @@ const AddPatientVitals = (props) => {
                                                 helperText={error ? error.message : null}
                                             />
                                         )}
+                                        rules={{ required: 'Pulse is Required' }}
                                     />
                                 </FormControl>
                             </Grid>
@@ -122,6 +121,7 @@ const AddPatientVitals = (props) => {
                                             <TextField
                                                 label="Respiratory Rate (bpm)"
                                                 id="RespiratoryRate"
+                                                type={"number"}
                                                 variant="outlined"
                                                 value={value}
                                                 onChange={onChange}
@@ -129,6 +129,7 @@ const AddPatientVitals = (props) => {
                                                 helperText={error ? error.message : null}
                                             />
                                         )}
+                                        rules={{ required: 'Respiratory Rate is Required' }}
                                     />
                                 </FormControl>
                             </Grid>
@@ -142,6 +143,7 @@ const AddPatientVitals = (props) => {
                                             <TextField
                                                 label="Temperature (C)"
                                                 id="Temperature"
+                                                type={"number"}
                                                 variant="outlined"
                                                 value={value}
                                                 onChange={onChange}
@@ -149,6 +151,7 @@ const AddPatientVitals = (props) => {
                                                 helperText={error ? error.message : null}
                                             />
                                         )}
+                                        rules={{ required: 'Temperature is Required' }}
                                     />
                                 </FormControl>
                             </Grid>
@@ -164,6 +167,7 @@ const AddPatientVitals = (props) => {
                                                     <TextField
                                                         label="Systolic (mmHg)"
                                                         id="Systolic"
+                                                        type={"number"}
                                                         variant="outlined"
                                                         value={value}
                                                         onChange={onChange}
@@ -171,6 +175,7 @@ const AddPatientVitals = (props) => {
                                                         helperText={error ? error.message : null}
                                                     />
                                                 )}
+                                                rules={{ required: 'Systolic is Required' }}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -185,6 +190,7 @@ const AddPatientVitals = (props) => {
                                                     <TextField
                                                         label="Diastolic (mmHg)"
                                                         id="Diastolic"
+                                                        type={"number"}
                                                         variant="outlined"
                                                         value={value}
                                                         onChange={onChange}
@@ -192,6 +198,7 @@ const AddPatientVitals = (props) => {
                                                         helperText={error ? error.message : null}
                                                     />
                                                 )}
+                                                rules={{ required: 'Diastolic is Required' }}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -207,6 +214,7 @@ const AddPatientVitals = (props) => {
                                             <TextField
                                                 label="Weight (Kg)"
                                                 id="Weight"
+                                                type={"number"}
                                                 variant="outlined"
                                                 value={value}
                                                 onChange={onChange}
@@ -214,6 +222,7 @@ const AddPatientVitals = (props) => {
                                                 helperText={error ? error.message : null}
                                             />
                                         )}
+                                        rules={{ required: 'Weight is Required' }}
                                     />
                                 </FormControl>
                             </Grid>
@@ -228,6 +237,7 @@ const AddPatientVitals = (props) => {
                                             <TextField
                                                 label="Height (cm)"
                                                 id="Height"
+                                                type={"number"}
                                                 variant="outlined"
                                                 value={value}
                                                 onChange={onChange}
@@ -235,6 +245,7 @@ const AddPatientVitals = (props) => {
                                                 helperText={error ? error.message : null}
                                             />
                                         )}
+                                        rules={{ required: 'Height is Required' }}
                                     />
                                 </FormControl>
                             </Grid>
