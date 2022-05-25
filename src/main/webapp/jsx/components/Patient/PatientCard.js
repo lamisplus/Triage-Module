@@ -13,7 +13,6 @@ import {Label,} from "semantic-ui-react";
 import 'semantic-ui-css/semantic.min.css';
 import { Col, Row } from "reactstrap";
 import Moment from "moment";
-import momentLocalizer from "react-widgets-moment";
 import moment from "moment";
 import PostPatient from './PostPatient'
 

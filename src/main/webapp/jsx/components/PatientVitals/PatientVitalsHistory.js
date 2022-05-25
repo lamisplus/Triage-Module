@@ -112,11 +112,10 @@ const Patients = (props) => {
         ///GET LIST OF Patients
         async function patientsVitalsSigns() {
             axios
-                .get(`${baseUrl}hiv/patient/`,
+                .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
                 { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
-                    console.log(response.data)
                     setPatientList(response.data);
                 })
                 .catch((error) => {    
@@ -162,21 +161,25 @@ const Patients = (props) => {
                   title: "Ecounter Date",
                   field: "date",
                 },
-                { title: "Temperature", field: "Temperature", filtering: false },
+                { title: "Pulse", field: "pulse", filtering: false },
+                { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
+                { title: "Blood Presure", field: "bloodPresure", filtering: false },
+                { title: "Temperature", field: "temperature", filtering: false },
                 { title: "Height", field: "Height", filtering: false },
                 { title: "Weight", field: "Weight", filtering: false },
-                { title: "Current Status", field: "status", filtering: false },
+               
               
               ]}
-              data={ [].map((row) => ({
+              data={ patientList.map((row) => ({
                   //Id: manager.id,
-                  date:"",
-                  Height:"",
-                  Weight:"",  
-                  status: (<Label color="blue" size="mini">{row.currentStatus}</Label>),
+                  date:row.encounterDate,
+                  pulse:row.pulse,
+                  respiratoryRate:row.respiratoryRate, 
+                  temperature:row.temperature,
+                  bloodPresure:row.systolic + " /"+ row.diastolic,
+                  Height:row.height,
+                  Weight:row.bodyWeight,  
                  
-                    
-                  
                   }))}
             
                         options={{

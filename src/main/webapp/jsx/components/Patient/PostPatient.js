@@ -10,15 +10,11 @@ import { url as baseUrl } from "../../../api";
 import { token as token } from "../../../api";
 import { useHistory } from "react-router-dom";
 import {  Modal, Button } from "react-bootstrap";
-
+import DropdownMultiselect from "react-multiselect-dropdown-bootstrap";
 import 'react-summernote/dist/react-summernote.css'; // import styles
 import { Spinner } from "reactstrap";
-// import Autocomplete from '@mui/material/Autocomplete';
-// import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-// import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import Select from "react-select";
 
-// const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-// const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -65,6 +61,7 @@ const useStyles = makeStyles(theme => ({
 
 const AddVitals = (props) => {
     const patientObj = props.patientObj;
+    const [selectedOption, setSelectedOption] = useState();
     let history = useHistory();
     const classes = useStyles()
     const [services, setServices]= useState([]);
@@ -78,53 +75,40 @@ const AddVitals = (props) => {
         ///GET LIST OF Post Services
         async function ServicesPost() {
             axios
-                .get(`${baseUrl}patient/post-service`,
+                .get(`${baseUrl}patient/vital-sign/post-service`,
                 { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
-                    console.log(response.data)
-                    setServices(response.data);
+                    setServices(
+                        Object.entries(response.data).map(([key, value]) => ({
+                          label: value.moduleServiceName,
+                          value: value.id,
+                        })))
+                 
                 })
                 .catch((error) => {    
                 });        
         }
 
-    const [vital, setVitalSignDto]= useState({
+    const [postServices, setPostServices]= useState({
+                                                    serviceIds:"",
+                                                    facilityId: "",
+                                                    personId: "",
+                                                    visitEndDate: "",
+                                                    visitStartDate: ""
 
-                                                bodyWeight: "",
-                                                diastolic: "",
-                                                encounterDate: "",
-                                                facilityId: 1,
-                                                height: "",
-                                                personId: props.patientObj.id,
-                                                pulse: "",
-                                                respiratoryRate: "",
-                                                systolic:"",
-                                                temperature: "",
-                                                visitId:props.patientObj.visitId
                                             })
-    
-        const handleInputChangeVitalSignDto = e => {            
-            setVitalSignDto ({...vital,  [e.target.name]: e.target.value});
-        }
-
-         //FORM VALIDATION
-        const validate = () => {
-            let temp = { ...errors }
-            //temp.name = details.name ? "" : "This field is required"
-            //temp.description = details.description ? "" : "This field is required"
-            setErrors({
-                ...temp
-                })    
-            return Object.values(temp).every(x => x == "")
-        }
-          
+          console.log(selectedOption)
         /**** Submit Button Processing  */
         const handleSubmit = (e) => {        
             e.preventDefault();        
             
             setSaving(true);
-            axios.post(`${baseUrl}patient/vital-sign/`, vital,
+            let serviceArr = []
+            selectedOption.forEach(function (value, index, array) {
+                serviceArr.push(value['value'])
+            })
+            axios.post(`${baseUrl}patient/vital-sign/`, postServices,
             { headers: {"Authorization" : `Bearer ${token}`}},
             
             )
@@ -155,67 +139,42 @@ const AddVitals = (props) => {
                     className="btn-close"
                     onClick={props.toggle}
                 ></Button>
-            </Modal.Header>
+                </Modal.Header>
                 <Modal.Body>                   
                         <Card >
                             <CardBody>
                             <form >
                                 <div className="row">
-                                
-                                {/* <Autocomplete
-                                    multiple
-                                    id="checkboxes-tags-demo"
-                                    options={services}
-                                    //disableCloseOnSelect
-                                    getOptionLabel={(option) => option.moduleServiceName}
-                                    renderOption={(props, option, { selected }) => (
-                                        <li {...props}>
-                                        <Checkbox
-                                            icon={icon}
-                                            checkedIcon={checkedIcon}
-                                            style={{ marginRight: 8 }}
-                                            checked={selected}
-                                        />
-                                        {option.moduleServiceName}
-                                        </li>
-                                    )}
-                                    style={{ width: 400 }}
-                                    renderInput={(params) => (
-                                        <TextField {...params} label="Services" />
-                                    )}
+                              
+                                   <Select
+                                        onChange={setSelectedOption}
+                                        value={selectedOption}
+                                        options={services}
+                                        isMulti="true"
+                                        noOptionsMessage="true"
                                     />
-                                     */}
 
                                 </div>
                                 
                                 {saving ? <Spinner /> : ""}
-                            <br />
+                                <br />
                             
                                 <MatButton
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                className={classes.button}
-                                startIcon={<SaveIcon />}
-                                onClick={handleSubmit}
-                            >
-                                {!saving ? (
-                                <span style={{ textTransform: "capitalize" }}>Save</span>
-                                ) : (
-                                <span style={{ textTransform: "capitalize" }}>Saving...</span>
-                                )}
-                            </MatButton>
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                    startIcon={<SaveIcon />}
+                                    onClick={handleSubmit}
+                                    >
+                                    {!saving ? (
+                                    <span style={{ textTransform: "capitalize" }}>Save</span>
+                                    ) : (
+                                    <span style={{ textTransform: "capitalize" }}>Saving...</span>
+                                    )}
+                                </MatButton>
                           
-                            <MatButton
-                                variant="contained"
-                                className={classes.button}
-                                startIcon={<CancelIcon />}
-                                
-                            >
-                                <span style={{ textTransform: "capitalize" }}>Cancel</span>
-                            </MatButton>
-                          
-                                </form>
+                            </form>
                             </CardBody>
                         </Card> 
                     </Modal.Body>
