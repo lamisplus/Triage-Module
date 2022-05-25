@@ -98,7 +98,7 @@ const AddVitals = (props) => {
                                                     visitStartDate: ""
 
                                             })
-          console.log(selectedOption)
+          
         /**** Submit Button Processing  */
         const handleSubmit = (e) => {        
             e.preventDefault();        
@@ -108,6 +108,7 @@ const AddVitals = (props) => {
             selectedOption.forEach(function (value, index, array) {
                 serviceArr.push(value['value'])
             })
+
             axios.post(`${baseUrl}patient/vital-sign/`, postServices,
             { headers: {"Authorization" : `Bearer ${token}`}},
             
