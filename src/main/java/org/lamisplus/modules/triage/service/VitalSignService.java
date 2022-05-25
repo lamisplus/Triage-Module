@@ -2,6 +2,7 @@ package org.lamisplus.modules.triage.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lamisplus.modules.patient.controller.exception.AlreadyExistException;
 import org.lamisplus.modules.patient.controller.exception.NoRecordFoundException;
 import org.lamisplus.modules.patient.domain.entity.Person;
 import org.lamisplus.modules.patient.repository.PersonRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,11 +34,26 @@ public class VitalSignService {
         log.info ("I am in service {}", vitalSignDto.getEncounterDate ());
         Long personId = vitalSignDto.getPersonId ();
         getExistingPerson (personId);
+        Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (vitalSignDto.getVisitId ());
+        if (existVitalSignByVisitId.isPresent ())
+            throw new AlreadyExistException ("Vital Sign already exist for this visit " + vitalSignDto.getVisitId ());
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
         vitalSign.setArchived (0);
         VitalSign saveVitalSign = vitalSignRepository.save (vitalSign);
         return convertVitalSignEntityToVitalSignDto (saveVitalSign);
+    }
+
+
+    private Optional<VitalSign> getExistVitalSignByVisitId(Long visitId) {
+        return vitalSignRepository.getVitalSignByVisitIdAndArchived (visitId, 0);
+    }
+
+    public VitalSignDto getVitalSignByVisitId(Long visitId) {
+        VitalSign vitalSign = getExistVitalSignByVisitId (visitId)
+                .orElseThrow (() -> new NoRecordFoundException ("No Vital Sign found for this visit " + visitId));
+        return convertVitalSignEntityToVitalSignDto (vitalSign);
+
     }
 
 
@@ -61,6 +78,13 @@ public class VitalSignService {
         return convertVitalSignEntityToVitalSignDto (getExistingVitalSign (id));
     }
 
+    public List<VitalSignDto> getVitalSignByPersonId(Long personId){
+        return vitalSignRepository.getVitalSignByPersonIdAndArchived (personId, 0)
+                .stream ()
+                .map (this::convertVitalSignEntityToVitalSignDto)
+                .collect(Collectors.toList());
+    }
+
 
     private VitalSign getExistingVitalSign(Long id) {
         return vitalSignRepository
@@ -79,7 +103,6 @@ public class VitalSignService {
         BeanUtils.copyProperties (vitalSignDto, vitalSign);
         return vitalSign;
     }
-
 
 
     private VitalSignDto convertVitalSignEntityToVitalSignDto(VitalSign vitalSign) {
