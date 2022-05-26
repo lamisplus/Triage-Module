@@ -6,11 +6,10 @@ import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
 import axios from "axios";
 import { toast} from "react-toastify";
-import { url as baseUrl } from "../../../api";
-import { token as token } from "../../../api";
+import { url as baseUrl, token } from "../../../../../api";
 import { useHistory } from "react-router-dom";
 import {  Modal, Button } from "react-bootstrap";
-import DropdownMultiselect from "react-multiselect-dropdown-bootstrap";
+import {format} from 'date-fns';
 import 'react-summernote/dist/react-summernote.css'; // import styles
 import { Spinner } from "reactstrap";
 import Select from "react-select";
@@ -58,9 +57,11 @@ const useStyles = makeStyles(theme => ({
         fontSize: "11px",
     },
 }))
+let newDate = new Date()
 
 const AddVitals = (props) => {
     const patientObj = props.patientObj;
+    //console.log(patientObj)
     const [selectedOption, setSelectedOption] = useState();
     let history = useHistory();
     const classes = useStyles()
@@ -90,15 +91,15 @@ const AddVitals = (props) => {
                 });        
         }
 
-    const [postServices, setPostServices]= useState({
-                                                    serviceIds:"",
-                                                    facilityId: "",
-                                                    personId: "",
-                                                    visitEndDate: "",
-                                                    visitStartDate: ""
+    const [postServices, setPostServices]= useState({                                                  
+                                                        encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
+                                                        facilityId: 1,
+                                                        personId:"",
+                                                        serviceCode:"",
+                                                        visitId: ""
+                                                    })
+    
 
-                                            })
-          
         /**** Submit Button Processing  */
         const handleSubmit = (e) => {        
             e.preventDefault();        
@@ -108,8 +109,10 @@ const AddVitals = (props) => {
             selectedOption.forEach(function (value, index, array) {
                 serviceArr.push(value['value'])
             })
-
-            axios.post(`${baseUrl}patient/vital-sign/`, postServices,
+            postServices.personId=patientObj.id
+            postServices.visitId=patientObj.visitId
+            postServices.serviceCode=serviceArr
+            axios.post(`${baseUrl}patient/post`, postServices,
             { headers: {"Authorization" : `Bearer ${token}`}},
             
             )
@@ -118,7 +121,7 @@ const AddVitals = (props) => {
                   props.patientObj.commenced=true
                   toast.success("Vital signs save successful");
                   props.toggle()
-                  props.patientsVitalsSigns()
+                  //props.patientsVitalsSigns()
 
               })
               .catch(error => {

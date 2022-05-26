@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import MaterialTable from 'material-table';
 import axios from "axios";
-import { url as baseUrl } from "../../../api";
-import { token as token } from "../../../api";
+import { url as baseUrl, token } from "../../../../../api";
+
 import { forwardRef } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Link } from 'react-router-dom'

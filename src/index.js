@@ -11,11 +11,11 @@ ReactDOM.render(
 	<React.StrictMode>
 
             <SimpleReactLightbox>
-                <BrowserRouter basename='/'>
+                <Router basename='/'>
                     <ThemeContext>
                         <App />
                     </ThemeContext>  
-                </BrowserRouter>
+                </Router>
             </SimpleReactLightbox>
 
 	</React.StrictMode>,

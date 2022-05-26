@@ -6,8 +6,7 @@ import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
 import axios from "axios";
 import { toast} from "react-toastify";
-import { url as baseUrl } from "../../../api";
-import { token as token } from "../../../api";
+import { url as baseUrl, token } from "../../../../../api";
 import { useHistory } from "react-router-dom";
 import {  Modal, Button } from "react-bootstrap";
 
