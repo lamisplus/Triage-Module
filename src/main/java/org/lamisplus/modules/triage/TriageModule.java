@@ -11,12 +11,12 @@ import org.lamisplus.modules.patient.PatientModule;
 				AcrossHibernateJpaModule.NAME,
 				PatientModule.NAME
 		})
-public class Triage extends AcrossModule {
+public class TriageModule extends AcrossModule {
 
-		public static final String NAME = "Triage";
+		public static final String NAME = "TriageModule";
 
 
-    public Triage() {
+    public TriageModule() {
 		super ();
 		addApplicationContextConfigurer (new ComponentScanConfigurer (
 				getClass ().getPackage ().getName () + ".domain",

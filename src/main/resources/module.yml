@@ -1,5 +1,6 @@
 basePackage: org.lamisplus.modules.triage
-name: Triage
+name: TriageModule
+dependencies: {PatientModule: 1.0.0}
 store: true
 menus:
   - icon:

@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/patient/vital-sign")
+@RequestMapping("api/v1/patient/vital-sign")
 public class VitalSignController {
 
     private final VitalSignService vitalSignService;
