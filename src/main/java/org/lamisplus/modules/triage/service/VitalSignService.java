@@ -36,9 +36,12 @@ public class VitalSignService {
         log.info ("I am in service {}", vitalSignDto.getEncounterDate ());
         Long personId = vitalSignDto.getPersonId ();
         getExistingPerson (personId);
-        Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (vitalSignDto.getVisitId ());
+        Long visitId = vitalSignDto.getVisitId ();
+        if(visitId != null){
+        Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (visitId);
         if (existVitalSignByVisitId.isPresent ())
-            throw new RecordExistException (VitalSign.class, "id", "" + vitalSignDto.getVisitId ());
+            throw new RecordExistException (VitalSign.class, "id", "" + visitId);
+        }
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
         vitalSign.setArchived (0);
