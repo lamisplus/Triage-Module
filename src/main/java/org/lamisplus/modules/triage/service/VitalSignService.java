@@ -38,7 +38,7 @@ public class VitalSignService {
         getExistingPerson (personId);
         Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (vitalSignDto.getVisitId ());
         if (existVitalSignByVisitId.isPresent ())
-            throw new RecordExistException (VitalSignService.class, "Vital Sign already exist for this visit " + vitalSignDto.getVisitId ());
+            throw new RecordExistException (VitalSign.class, "id", "" + vitalSignDto.getVisitId ());
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
         vitalSign.setArchived (0);
@@ -53,7 +53,7 @@ public class VitalSignService {
 
     public VitalSignDto getVitalSignByVisitId(Long visitId) {
         VitalSign vitalSign = getExistVitalSignByVisitId (visitId)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSignService.class, "No Vital Sign found for this visit " + visitId));
+                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id", ""+ visitId));
         return convertVitalSignEntityToVitalSignDto (vitalSign);
 
     }
@@ -91,13 +91,13 @@ public class VitalSignService {
     private VitalSign getExistingVitalSign(Long id) {
         return vitalSignRepository
                 .findById (id)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSignService.class, "No vital sign found with id " + id));
+                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id",""+id));
     }
 
     private Person getExistingPerson(Long personId) {
         return personRepository
                 .findById (personId)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSignService.class, "No person found with id " + personId));
+                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id", "" + personId));
     }
 
     private VitalSign convertVitalSignDtoToVitalSignEntity(VitalSignDto vitalSignDto) {
