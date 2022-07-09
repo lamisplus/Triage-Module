@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Builder
 @Entity
-@Table(name = "vital_sign")
+@Table(name = "triage_vital_sign")
 @NoArgsConstructor
 @Setter
 @Getter
