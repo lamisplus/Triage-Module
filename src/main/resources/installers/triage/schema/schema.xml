@@ -22,7 +22,7 @@
                 temperature        DOUBLE PRECISION,
                 pulse              DOUBLE PRECISION,
                 respiratory_rate   DOUBLE PRECISION,
-                person_id          BIGINT,
+                person_uuid        VARCHAR(255) NOT NULL,
                 visit_id    BIGINT,
                 facility_id        BIGINT,
                 systolic           DOUBLE PRECISION,
@@ -30,9 +30,10 @@
                 uuid               VARCHAR(255),
                 CONSTRAINT pk_vital_sign PRIMARY KEY (id)
             );
-
-            ALTER TABLE vital_sign
-                ADD CONSTRAINT FK_VITAL_SIGN_ON_PERSON FOREIGN KEY (person_id) REFERENCES person (id);
+            ALTER TABLE triage_vital_sign
+                ADD CONSTRAINT uc_triage_vital_sign_uuid UNIQUE (uuid);
+            ALTER TABLE triage_vital_sign
+                ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_PATIENT_PERSON FOREIGN KEY (person_uuid) REFERENCES patient_person (uuid);
         </sql>
     </changeSet>
 
