@@ -23,7 +23,7 @@
                 pulse              DOUBLE PRECISION,
                 respiratory_rate   DOUBLE PRECISION,
                 person_uuid        VARCHAR(255) NOT NULL,
-                visit_id    BIGINT,
+                visit_id           VARCHAR(255) NOT NULL,
                 facility_id        BIGINT,
                 systolic           DOUBLE PRECISION,
                 archived           INTEGER,
@@ -34,6 +34,8 @@
                 ADD CONSTRAINT uc_triage_vital_sign_uuid UNIQUE (uuid);
             ALTER TABLE triage_vital_sign
                 ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_PATIENT_PERSON FOREIGN KEY (person_uuid) REFERENCES patient_person (uuid);
+            ALTER TABLE triage_vital_sign
+                ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_VISIT FOREIGN KEY (visit_id) REFERENCES patient_visit (uuid);
         </sql>
     </changeSet>
 

@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.controller.apierror.EntityNotFoundException;
 import org.lamisplus.modules.base.controller.apierror.RecordExistException;
 import org.lamisplus.modules.patient.domain.entity.Person;
+import org.lamisplus.modules.patient.domain.entity.Visit;
 import org.lamisplus.modules.patient.repository.PersonRepository;
+import org.lamisplus.modules.patient.repository.VisitRepository;
 import org.lamisplus.modules.triage.domain.dto.VitalSignDto;
 import org.lamisplus.modules.triage.domain.entity.VitalSign;
 import org.lamisplus.modules.triage.repository.VitalSignRepository;
@@ -23,6 +25,8 @@ import java.util.stream.Collectors;
 public class VitalSignService {
     private final VitalSignRepository vitalSignRepository;
     private final PersonRepository personRepository;
+
+    private final VisitRepository visitRepository;
 
 
     public void archivedVitalSign(Long id) {
@@ -50,8 +54,14 @@ public class VitalSignService {
     }
 
 
+    private Visit getVisit(Long visitId) {
+        return visitRepository.findById (visitId).orElseThrow (() ->new EntityNotFoundException (Visit.class, "id", String.valueOf (visitId)));
+    }
+
+
     private Optional<VitalSign> getExistVitalSignByVisitId(Long visitId) {
-        return vitalSignRepository.getVitalSignByVisitIdAndArchived (visitId, 0);
+        Visit visit = getVisit (visitId);
+        return vitalSignRepository.getVitalSignByVisitAndArchived (visit, 0);
     }
 
     public VitalSignDto getVitalSignByVisitId(Long visitId) {
@@ -105,9 +115,10 @@ public class VitalSignService {
     }
 
     private VitalSign convertVitalSignDtoToVitalSignEntity(VitalSignDto vitalSignDto) {
-
         VitalSign vitalSign = new VitalSign ();
         BeanUtils.copyProperties (vitalSignDto, vitalSign);
+        Visit visit = getVisit (vitalSignDto.getVisitId ());
+        vitalSign.setVisit (visit);
         return vitalSign;
     }
 
@@ -115,6 +126,8 @@ public class VitalSignService {
     private VitalSignDto convertVitalSignEntityToVitalSignDto(VitalSign vitalSign) {
         VitalSignDto vitalSignDto = new VitalSignDto ();
         BeanUtils.copyProperties (vitalSign, vitalSignDto);
+        Visit visit = vitalSign.getVisit ();
+        vitalSignDto.setVisitId (visit.getId ());
         return vitalSignDto;
     }
 }
