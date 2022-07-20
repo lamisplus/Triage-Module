@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import MaterialTable from 'material-table';
 import axios from "axios";
 import { url as baseUrl, token } from "./../../../../../api";
-
+import {FaEye, FaUserPlus} from "react-icons/fa";
+import { MdDashboard, MdDeleteForever, MdModeEdit,MdPerson} from "react-icons/md";
 import { forwardRef } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Link } from 'react-router-dom'
@@ -24,12 +25,11 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import {  Card,CardBody,} from 'reactstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { makeStyles } from '@material-ui/core/styles'
-import { MdDashboard } from "react-icons/md";
 import {Menu,MenuList,MenuButton,MenuItem,} from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
 import moment from "moment";
-
+import SplitActionButton from '../../layouts/SplitActionButton'
 
 
 const tableIcons = {
@@ -100,7 +100,24 @@ const Patients = (props) => {
     
     const [patientList, setPatientList] = useState([])
     const [patientObj, setpatientObj] = useState([])
+    const [permissions, setPermissions] = useState([]);
+    useEffect(() => {
+        userPermission();
+    }, []);
+    //Get list of Finger index
+    const userPermission =()=>{
+        axios
+            .get(`${baseUrl}account`,
+                { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                setPermissions(response.data.permissions);
 
+            })
+            .catch((error) => {
+            });
+
+    }
     useEffect(() => {
         patients()
       }, []);
@@ -140,6 +157,32 @@ const Patients = (props) => {
     };
 
     console.log(patientList)
+    function actionItems(row){
+        return  [
+            {
+                name:'View',
+                type:'link',
+                icon:<FaEye  size="22"/>,
+                to:{
+                    pathname: "/patient-dashboard",
+                    state: { patientObj: row , permissions:permissions  }
+                }
+            },
+            {...(permissions.includes('view_patient') || permissions.includes("all_permission")&&
+                    {
+                        name:'Patient Dashboard',
+                        type:'link',
+                        icon:<MdPerson size="20" color='rgb(1, 77, 136)' />,
+                        to:{
+                            pathname: "/patient-dashboard",
+                            state: { patientObj: row , permissions:permissions  }
+                        }
+                    }
+                )},
+        ]
+    }
+
+
   return (
     <div>
        <Card>
@@ -148,7 +191,7 @@ const Patients = (props) => {
         
             <MaterialTable
             icons={tableIcons}
-              title="Find Patient "
+              title="Checked-In"
               columns={[
               // { title: " ID", field: "Id" },
                 {
@@ -171,10 +214,14 @@ const Patients = (props) => {
                         row.dateOfBirth === "" )
                           ? 0
                           : calculate_age(moment(row.dateOfBirth).format("DD-MM-YYYY")),
-                 
-                    actions:
-            
-                    <div>
+
+                  actions:
+                      <div>
+                          {permissions.includes('view_patient') || permissions.includes("all_permission") ? (
+                              <SplitActionButton actions={actionItems(row)} />
+                          ):""
+                          }
+{/*
                     <Menu>
                         <MenuButton style={{ backgroundColor:"#3F51B5", color:"#fff", border:"2px solid #3F51B5", borderRadius:"4px", }}>
                           Actions <span aria-hidden>▾</span>
@@ -192,16 +239,18 @@ const Patients = (props) => {
                                 </MenuItem>                                    
     
                           </MenuList>
-                    </Menu>
+                    </Menu>*/}
                   </div>
                   
                   }))}
             
                         options={{
-                          headerStyle: {
-                              //backgroundColor: "#9F9FA5",
-                              color: "#000",
-                          },
+                            headerStyle: {
+                                backgroundColor: "#014d88",
+                                color: "#fff",
+                                fontSize:'16px',
+                                padding:'10px'
+                            },
                           searchFieldStyle: {
                               width : '200%',
                               margingLeft: '250px',

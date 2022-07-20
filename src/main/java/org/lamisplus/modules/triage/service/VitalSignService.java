@@ -35,18 +35,18 @@ public class VitalSignService {
     public VitalSignDto registerVitalSign(VitalSignDto vitalSignDto) {
         log.info ("I am in service {}", vitalSignDto.getEncounterDate ());
         Long personId = vitalSignDto.getPersonId ();
-        getExistingPerson (personId);
+        Person existingPerson = getExistingPerson (personId);
         Long visitId = vitalSignDto.getVisitId ();
         if(visitId != null){
-        Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (visitId);
-        if (existVitalSignByVisitId.isPresent ())
-            throw new RecordExistException (VitalSign.class, "id", "" + visitId);
+            Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (visitId);
+            if (existVitalSignByVisitId.isPresent ())
+                throw new RecordExistException (VitalSign.class, "id", "" + visitId);
         }
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setUuid (UUID.randomUUID ().toString ());
         vitalSign.setArchived (0);
-        VitalSign saveVitalSign = vitalSignRepository.save (vitalSign);
-        return convertVitalSignEntityToVitalSignDto (saveVitalSign);
+        vitalSign.setPerson (existingPerson);
+        return convertVitalSignEntityToVitalSignDto (vitalSignRepository.save (vitalSign));
     }
 
 
@@ -84,7 +84,8 @@ public class VitalSignService {
     }
 
     public List<VitalSignDto> getVitalSignByPersonId(Long personId) {
-        return vitalSignRepository.getVitalSignByPersonIdAndArchived (personId, 0)
+        Person existingPerson = getExistingPerson (personId);
+        return vitalSignRepository.getVitalSignByPersonAndArchived (existingPerson, 0)
                 .stream ()
                 .map (this::convertVitalSignEntityToVitalSignDto)
                 .collect (Collectors.toList ());
@@ -104,6 +105,7 @@ public class VitalSignService {
     }
 
     private VitalSign convertVitalSignDtoToVitalSignEntity(VitalSignDto vitalSignDto) {
+
         VitalSign vitalSign = new VitalSign ();
         BeanUtils.copyProperties (vitalSignDto, vitalSign);
         return vitalSign;

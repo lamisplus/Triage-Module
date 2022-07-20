@@ -9,6 +9,7 @@ import PatientCardDetail from './PatientCard'
 import { useHistory } from "react-router-dom";
 
 import PatientVitalsHistory from './../PatientVitals/PatientVitalsHistory';
+import PatientDashboardBody from "./PatientDashboardBody";
 
 const styles = theme => ({
   root: {
@@ -57,8 +58,8 @@ function PatientCard(props) {
       <Card >
         <CardContent>
           <PatientCardDetail patientObj={patientObj}/>            
-          <PatientVitalsHistory  patientObj={patientObj}/>
-              
+          {/*<PatientVitalsHistory  patientObj={patientObj}/>*/}
+          <PatientDashboardBody patientObj={patientObj}/>
          </CardContent>
       </Card>
       

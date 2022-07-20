@@ -118,7 +118,7 @@ const Patients = (props) => {
                 .then((response) => {
                     setPatientList(response.data);
                 })
-                .catch((error) => {    
+                .catch((error) => {
                 });        
         }
         const AddVitalsSigns =(row)=> {
@@ -129,37 +129,20 @@ const Patients = (props) => {
 
   return (
     <div>
-        <br/><br/>
-            <Link to={"/"} >
-            <ButtonMui
-                variant="contained"
-                color="primary"
-                className=" float-end ms-2"
 
-            >
-                <span style={{ textTransform: "capitalize" }}>Back</span>
-            </ButtonMui>
-            
-          </Link>
-          <ButtonMui
-                variant="contained"
-                color="primary"
-                className=" float-end ms-2"
-                onClick={() => AddVitalsSigns(patientObj)}
-            >
-                <span style={{ textTransform: "capitalize" }}>Add Vitals</span>
-            </ButtonMui>       
-          <br/><br/>
-
-      
             <MaterialTable
             icons={tableIcons}
-              title="Patient Vitals Signs"
+              title=""
               columns={[
               // { title: " ID", field: "Id" },
                 {
                   title: "Ecounter Date",
                   field: "date",
+                    headerStyle: {
+                        backgroundColor: "#039be5",
+                        border:'2px solid #fff',
+                        paddingRight:'30px'
+                    }
                 },
                 { title: "Pulse", field: "pulse", filtering: false },
                 { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
@@ -167,7 +150,8 @@ const Patients = (props) => {
                 { title: "Temperature", field: "temperature", filtering: false },
                 { title: "Height", field: "Height", filtering: false },
                 { title: "Weight", field: "Weight", filtering: false },
-               
+                { title: "BMI", field: "BMI", filtering: false },
+
               
               ]}
               data={ patientList.map((row) => ({
@@ -178,14 +162,15 @@ const Patients = (props) => {
                   temperature:row.temperature,
                   bloodPresure:row.systolic + " /"+ row.diastolic,
                   Height:row.height,
-                  Weight:row.bodyWeight,  
-                 
+                  Weight:row.bodyWeight,
+                  BMI: Math.round(row.bodyWeight/Math.pow(row.height,2))
                   }))}
             
                         options={{
                           headerStyle: {
-                              //backgroundColor: "#9F9FA5",
-                              color: "#000",
+                              backgroundColor: "#014d88",
+                              color: "#fff",
+                              fontSize:'14px',
                           },
                           searchFieldStyle: {
                               width : '200%',
