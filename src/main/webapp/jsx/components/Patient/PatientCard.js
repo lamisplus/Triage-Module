@@ -180,7 +180,7 @@ const PostPatientService =(row)=> {
                                 startIcon={<TiArrowBack  />}
                                 style={{backgroundColor:"rgb(153, 46, 98)", color:'#fff', height:'35px'}}
                             >
-                                <span style={{ textTransform: "capitalize" }}>Cancel</span>
+                                <span style={{ textTransform: "capitalize" }}>Back</span>
                             </MatButton>
                         </Button>
 
