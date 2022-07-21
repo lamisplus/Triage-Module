@@ -15,6 +15,7 @@
                 created_by         VARCHAR(255),
                 last_modified_date TIMESTAMP WITHOUT TIME ZONE,
                 last_modified_by   VARCHAR(255),
+                facility_id        BIGINT,
                 body_weight        DOUBLE PRECISION,
                 diastolic          DOUBLE PRECISION,
                 encounter_date     date,
@@ -22,18 +23,20 @@
                 temperature        DOUBLE PRECISION,
                 pulse              DOUBLE PRECISION,
                 respiratory_rate   DOUBLE PRECISION,
-                person_uuid        VARCHAR(255) NOT NULL,
-                visit_id           VARCHAR(255) NOT NULL,
-                facility_id        BIGINT,
+                person_uuid        VARCHAR(255)                                  NOT NULL,
+                visit_id           VARCHAR(255)                                  NOT NULL,
                 systolic           DOUBLE PRECISION,
                 archived           INTEGER,
-                uuid               VARCHAR(255),
-                CONSTRAINT pk_vital_sign PRIMARY KEY (id)
+                uuid               VARCHAR(255)                            NOT NULL,
+                CONSTRAINT pk_triage_vital_sign PRIMARY KEY (id)
                 );
+
             ALTER TABLE triage_vital_sign
                 ADD CONSTRAINT uc_triage_vital_sign_uuid UNIQUE (uuid);
+
             ALTER TABLE triage_vital_sign
-                ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_PATIENT_PERSON FOREIGN KEY (person_uuid) REFERENCES patient_person (uuid);
+                ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_PERSON_UUID FOREIGN KEY (person_uuid) REFERENCES patient_person (uuid);
+
             ALTER TABLE triage_vital_sign
                 ADD CONSTRAINT FK_TRIAGE_VITAL_SIGN_ON_VISIT FOREIGN KEY (visit_id) REFERENCES patient_visit (uuid);
         </sql>

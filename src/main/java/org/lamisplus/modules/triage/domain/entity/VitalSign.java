@@ -43,7 +43,8 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
 
     @OneToOne(optional = false)
     @JoinColumn(name = "visit_id", nullable = false, referencedColumnName = "uuid")
-    private Visit Visit;
+    private Visit visit;
+
     @NotNull
     private Double systolic;
 
