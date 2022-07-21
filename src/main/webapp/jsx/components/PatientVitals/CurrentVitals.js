@@ -81,6 +81,7 @@ function CurrentVitals(props) {
     const [errors, setErrors] = useState({});
     const [bmi, setBMI] = useState(0);
     const [visitVitalStatus, setVisitVitalStatus] = useState(false);
+    const [currentVitalId, setCurrentVitalId]=useState(null);
 
     const [vital, setVitalSignDto]= useState({
         bodyWeight: "",
@@ -119,25 +120,46 @@ function CurrentVitals(props) {
     /**** Submit Button Processing  */
     const handleSubmit = (e) => {
         e.preventDefault();
+        //If visit has a vital sign update else create new
+        if(visitVitalStatus){
+            setSaving(true);
+            axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vital,
+                { headers: {"Authorization" : `Bearer ${token}`}},
 
-        setSaving(true);
-        axios.post(`${baseUrl}patient/vital-sign/`, vital,
-            { headers: {"Authorization" : `Bearer ${token}`}},
+            ).then(response => {
+                    setSaving(false);
+                    props.patientObj.commenced=true
+                    toast.success("Vital signs update successful");
+                    props.toggle()
+                    props.patientsVitalsSigns()
 
-        )
-            .then(response => {
-                setSaving(false);
-                props.patientObj.commenced=true
-                toast.success("Vital signs save successful");
-                props.toggle()
-                props.patientsVitalsSigns()
+                })
+                .catch(error => {
+                    setSaving(false);
+                    toast.error("Something went wrong");
 
-            })
-            .catch(error => {
-                setSaving(false);
-                toast.error("Something went wrong");
+                });
+        }else{
+            setSaving(true);
+            axios.post(`${baseUrl}patient/vital-sign/`, vital,
+                { headers: {"Authorization" : `Bearer ${token}`}},
 
-            });
+            )
+                .then(response => {
+                    setSaving(false);
+                    props.patientObj.commenced=true
+                    toast.success("Vital signs save successful");
+                    props.toggle()
+                    props.patientsVitalsSigns()
+
+                })
+                .catch(error => {
+                    setSaving(false);
+                    toast.error("Something went wrong");
+
+                });
+        }
+
 
     }
     const userPermission =()=>{
@@ -166,9 +188,13 @@ function CurrentVitals(props) {
                 { headers: {"Authorization" : `Bearer ${token}`} }
             )
             .then((response) => {
+                console.log('current vitals')
+                console.log(response.data)
+                console.log('current vitals')
                 setVitalSignDto(response.data);
                 setBMI(Math.round(response.data.bodyWeight/Math.pow(response.data.height,2)));
                 setVisitVitalStatus(true);
+                setCurrentVitalId(response.data.id)
             })
             .catch((error) => {
             });

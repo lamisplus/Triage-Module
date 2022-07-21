@@ -1,17 +1,12 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ContentCut from '@mui/icons-material/ContentCut';
 import Typography from '@mui/material/Typography';
 import {FaEye, FaCaretDown } from "react-icons/fa";
 import Divider from '@mui/material/Divider';
@@ -92,9 +87,11 @@ export default function SplitActionButton(props) {
                                     {props.actions.slice(1).map((option, index) => (
                                         <MenuItem
                                             key={Math.random()}
+                                            {...(option.type==='button'&& {onClick:option.onClick})}
                                         >
                                             <Link
-                                                to={option.to}
+                                                to={option.type==='link'?option.to:'#'}
+                                                style={{width:'100%'}}
                                             >
                                                 {option.icon}<span style={{color: 'rgb(153, 46, 98)', fontWeight:'bolder', fontSize:'12px'}}>{option.name}</span>
                                             </Link>

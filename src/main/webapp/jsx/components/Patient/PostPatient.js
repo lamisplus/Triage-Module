@@ -80,19 +80,24 @@ const AddVitals = (props) => {
                 { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
+                    console.log('response.data')
+                    console.log(response.data)
+                    console.log('response.data')
                     setServices(
                         Object.entries(response.data).map(([key, value]) => ({
                           label: value.moduleServiceName,
-                          value: value.id,
+                          value: value.moduleServiceCode,
                         })))
                  
                 })
                 .catch((error) => {    
                 });        
         }
-
+    const createdAt = new Date();
+    const createdDate = createdAt.toLocaleDateString('en-US');
     const [postServices, setPostServices]= useState({                                                  
-                                                        encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
+                                                        //encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
+                                                        encounterDate:createdDate,
                                                         facilityId: 1,
                                                         personId:"",
                                                         serviceCode:"",
@@ -112,6 +117,9 @@ const AddVitals = (props) => {
             postServices.personId=patientObj.id
             postServices.visitId=patientObj.visitId
             postServices.serviceCode=serviceArr
+            console.log('post service')
+            console.log(postServices)
+            console.log('post service')
             axios.post(`${baseUrl}patient/post`, postServices,
             { headers: {"Authorization" : `Bearer ${token}`}},
             
@@ -172,7 +180,7 @@ const AddVitals = (props) => {
                                     onClick={handleSubmit}
                                     >
                                     {!saving ? (
-                                    <span style={{ textTransform: "capitalize" }}>Save</span>
+                                    <span style={{ textTransform: "capitalize" }}>Saved</span>
                                     ) : (
                                     <span style={{ textTransform: "capitalize" }}>Saving...</span>
                                     )}
