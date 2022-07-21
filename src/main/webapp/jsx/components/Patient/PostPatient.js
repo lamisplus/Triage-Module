@@ -94,10 +94,9 @@ const AddVitals = (props) => {
                 });        
         }
     const createdAt = new Date();
-    const createdDate = createdAt.toLocaleDateString('en-US');
+
     const [postServices, setPostServices]= useState({                                                  
-                                                        //encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
-                                                        encounterDate:createdDate,
+                                                        encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
                                                         facilityId: 1,
                                                         personId:"",
                                                         serviceCode:"",

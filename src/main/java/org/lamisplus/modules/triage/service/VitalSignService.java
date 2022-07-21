@@ -74,10 +74,19 @@ public class VitalSignService {
 
     public VitalSignDto updateVitalSign(Long id, VitalSignDto vitalSignDto) {
         VitalSign existingVitalSign = getExistingVitalSign (id);
-        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
+/*        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setId (existingVitalSign.getId ());
         vitalSign.setArchived (0);
-        VitalSign updateVitalSign = vitalSignRepository.save (vitalSign);
+        VitalSign updateVitalSign = vitalSignRepository.save (vitalSign);*/
+        existingVitalSign.setBodyWeight(vitalSignDto.getBodyWeight());
+        existingVitalSign.setDiastolic(vitalSignDto.getDiastolic());
+        existingVitalSign.setSystolic(vitalSignDto.getSystolic());
+        existingVitalSign.setHeight(vitalSignDto.getHeight());
+        existingVitalSign.setPulse(vitalSignDto.getPulse());
+        existingVitalSign.setTemperature(vitalSignDto.getTemperature());
+        existingVitalSign.setRespiratoryRate(vitalSignDto.getRespiratoryRate());
+        existingVitalSign.setEncounterDate(vitalSignDto.getEncounterDate());
+        VitalSign updateVitalSign = vitalSignRepository.save (existingVitalSign);
         return convertVitalSignEntityToVitalSignDto (updateVitalSign);
     }
 
@@ -128,6 +137,7 @@ public class VitalSignService {
         BeanUtils.copyProperties (vitalSign, vitalSignDto);
         Visit visit = vitalSign.getVisit ();
         vitalSignDto.setVisitId (visit.getId ());
+        vitalSignDto.setPersonId(vitalSign.getPerson().getId());
         return vitalSignDto;
     }
 }

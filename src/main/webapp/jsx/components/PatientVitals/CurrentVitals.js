@@ -182,9 +182,8 @@ function CurrentVitals(props) {
     }, []);
     ///GET LIST OF Patients
     async function getLatestVitals() {
-
         axios
-            .get(`${baseUrl}patient/vital-sign/${props.patientObj.visitId}`,
+            .get(`${baseUrl}patient/vital-sign/visit/${props.patientObj.visitId}`,
                 { headers: {"Authorization" : `Bearer ${token}`} }
             )
             .then((response) => {
