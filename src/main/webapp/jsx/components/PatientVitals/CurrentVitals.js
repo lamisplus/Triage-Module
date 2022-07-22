@@ -130,13 +130,14 @@ function CurrentVitals(props) {
                     setSaving(false);
                     props.patientObj.commenced=true
                     toast.success("Vital signs update successful");
-                    props.toggle()
-                    props.patientsVitalsSigns()
+                    //props.toggle()
+                    //props.patientsVitalsSigns()
 
                 })
                 .catch(error => {
                     setSaving(false);
                     toast.error("Something went wrong");
+
 
                 });
         }else{
@@ -149,9 +150,9 @@ function CurrentVitals(props) {
                     setSaving(false);
                     props.patientObj.commenced=true
                     toast.success("Vital signs save successful");
-                    props.toggle()
-                    props.patientsVitalsSigns()
-
+                    //props.toggle()
+                   // props.patientsVitalsSigns()
+                    props.setVisitVitalExists(true);
                 })
                 .catch(error => {
                     setSaving(false);
@@ -194,6 +195,7 @@ function CurrentVitals(props) {
                 setBMI(Math.round(response.data.bodyWeight/Math.pow(response.data.height,2)));
                 setVisitVitalStatus(true);
                 setCurrentVitalId(response.data.id)
+                props.setVisitVitalExists(true);
             })
             .catch((error) => {
             });
@@ -207,7 +209,8 @@ function CurrentVitals(props) {
 
                             <div className="form-group mb-3 col-md-6">
                                 <FormGroup>
-                                    <Label className={classes.label} >Date Of Vital Signs</Label>
+
+                                    <Label className={classes.label} >Date Of Vital Sign</Label>
                                     <InputGroup>
                                         <Input
                                             type="date"

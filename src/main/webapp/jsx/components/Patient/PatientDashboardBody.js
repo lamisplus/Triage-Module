@@ -28,10 +28,10 @@ function PatientDashboardBody(props) {
                                 >
 
                                     <Tab eventKey="current-Vitals" title="Vitals">
-                                        <CurrentVitals patientObj={patientObj}/>
+                                        <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}/>
                                     </Tab>
                                     <Tab eventKey="vitals-history" title="History">
-                                        <PatientVitalsHistory patientObj={patientObj} />
+                                        <PatientVitalsHistory patientObj={patientObj}  />
                                     </Tab>
 
                                 </Tabs>

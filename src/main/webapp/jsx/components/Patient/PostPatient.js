@@ -62,7 +62,7 @@ let newDate = new Date()
 const AddVitals = (props) => {
     const patientObj = props.patientObj;
     //console.log(patientObj)
-    const [selectedOption, setSelectedOption] = useState();
+    const [selectedOption, setSelectedOption] = useState([]);
     let history = useHistory();
     const classes = useStyles()
     const [services, setServices]= useState([]);
@@ -80,9 +80,6 @@ const AddVitals = (props) => {
                 { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
-                    console.log('response.data')
-                    console.log(response.data)
-                    console.log('response.data')
                     setServices(
                         Object.entries(response.data).map(([key, value]) => ({
                           label: value.moduleServiceName,
@@ -106,36 +103,37 @@ const AddVitals = (props) => {
 
         /**** Submit Button Processing  */
         const handleSubmit = (e) => {        
-            e.preventDefault();        
-            
-            setSaving(true);
-            let serviceArr = []
-            selectedOption.forEach(function (value, index, array) {
-                serviceArr.push(value['value'])
-            })
-            postServices.personId=patientObj.id
-            postServices.visitId=patientObj.visitId
-            postServices.serviceCode=serviceArr
-            console.log('post service')
-            console.log(postServices)
-            console.log('post service')
-            axios.post(`${baseUrl}patient/post`, postServices,
-            { headers: {"Authorization" : `Bearer ${token}`}},
-            
-            )
-              .then(response => {
-                  setSaving(false);
-                  props.patientObj.commenced=true
-                  toast.success("Vital signs save successful");
-                  props.toggle()
-                  //props.patientsVitalsSigns()
+            e.preventDefault();
+            if(selectedOption.length > 0){
+                setSaving(true);
+                let serviceArr = []
+                selectedOption.forEach(function (value, index, array) {
+                    serviceArr.push(value['value'])
+                })
+                postServices.personId=patientObj.id
+                postServices.visitId=patientObj.visitId
+                postServices.serviceCode=serviceArr
+                axios.post(`${baseUrl}patient/post`, postServices,
+                    { headers: {"Authorization" : `Bearer ${token}`}},
 
-              })
-              .catch(error => {
-                  setSaving(false);
-                  toast.error("Something went wrong");
-                 
-              });
+                )
+                    .then(response => {
+                        setSaving(false);
+                        props.patientObj.commenced=true
+                        toast.success("Vital signs save successful");
+                        props.toggle()
+                        //props.patientsVitalsSigns()
+
+                    })
+                    .catch(error => {
+                        setSaving(false);
+                        toast.error("Something went wrong");
+
+                    });
+            }else{
+                toast.error("Kindly select a service to post the patient");
+            }
+
           
         }
 

@@ -185,8 +185,12 @@ const PostPatientService =(row)=> {
                         </Button>
 
                     </Link>
+                        {props.visitVitalExists &&
+                            <>
+                                {" "}<Button  floated='right'  style={{backgroundColor:"#014d88", color:'#fff',height:'35px'}} onClick={() => PostPatientService(patientObj)}>Post Patient</Button>
 
-                      {" "}<Button  floated='right'  style={{backgroundColor:"#014d88", color:'#fff',height:'35px'}} onClick={() => PostPatientService(patientObj)}>Post Patient</Button>
+                            </>
+                        }
 
                     </div>
                 </Row>

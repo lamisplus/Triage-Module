@@ -51,15 +51,16 @@ function PatientCard(props) {
     let history = useHistory();
     const [key, setKey] = useState('home');
     const { classes } = props;
-    const patientObj = history.location && history.location.state ? history.location.state.patientObj : {}
+    const patientObj = history.location && history.location.state ? history.location.state.patientObj : {};
+    const [visitVitalExists, setVisitVitalExists] = useState(false);
 
   return (
     <div className={classes.root}>
       <Card >
         <CardContent>
-          <PatientCardDetail patientObj={patientObj}/>            
+          <PatientCardDetail patientObj={patientObj} visitVitalExists={visitVitalExists}/>
           {/*<PatientVitalsHistory  patientObj={patientObj}/>*/}
-          <PatientDashboardBody patientObj={patientObj}/>
+          <PatientDashboardBody patientObj={patientObj} setVisitVitalExists={setVisitVitalExists}/>
          </CardContent>
       </Card>
       
