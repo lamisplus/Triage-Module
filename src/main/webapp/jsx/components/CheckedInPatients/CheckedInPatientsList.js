@@ -158,27 +158,31 @@ const Patients = (props) => {
 
     console.log(patientList)
     function actionItems(row){
-        return  [
-            {
-                name:'View',
-                type:'link',
-                icon:<FaEye  size="22"/>,
-                to:{
-                    pathname: "/patient-dashboard",
-                    state: { patientObj: row , permissions:permissions  }
-                }
-            },
-            {...(permissions.includes('view_patient') || permissions.includes("all_permission")&&
-                    {
-                        name:'Patient Dashboard',
-                        type:'link',
-                        icon:<MdPerson size="20" color='rgb(1, 77, 136)' />,
-                        to:{
-                            pathname: "/patient-dashboard",
-                            state: { patientObj: row , permissions:permissions  }
-                        }
+        return  [            {
+            type:'single',
+            actions:[
+                {
+                    name:'Dashboard',
+                    type:'link',
+                    icon:<MdPerson  size="22"/>,
+                    to:{
+                        pathname: "/patient-dashboard",
+                        state: { patientObj: row , permissions:permissions  }
                     }
-                )},
+                },
+/*                {...(permissions.includes('view_patient') || permissions.includes("all_permission")&&
+                        {
+                            name:'Patient Dashboard',
+                            type:'link',
+                            icon:<MdPerson size="20" color='rgb(1, 77, 136)' />,
+                            to:{
+                                pathname: "/patient-dashboard",
+                                state: { patientObj: row , permissions:permissions  }
+                            }
+                        }
+                    )},*/
+            ]
+        }
         ]
     }
 
