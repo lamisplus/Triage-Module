@@ -146,8 +146,8 @@ const PostPatientService =(row)=> {
                             <Col md={4} style={{marginTop:"10px"}}>
                                     <span>
                                         {" "}
-                                        Gender :{" "}
-                                        <b style={{color:'#0B72AA'}}>{patientObj.gender.display }</b>
+                                        Sex :{" "}
+                                        <b style={{color:'#0B72AA'}}>{patientObj.sex }</b>
                                     </span>
 
                             </Col>

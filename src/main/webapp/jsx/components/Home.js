@@ -33,9 +33,9 @@ const Home = () => {
                     <Tab eventKey="home" title="Checked-In">
                       <CheckedInPatientList />
                     </Tab>
-                    <Tab eventKey="find-patient" title="Find Patient">
+{/*                    <Tab eventKey="find-patient" title="Find Patient">
                         <CheckedInPatientList />
-                    </Tab>
+                    </Tab>*/}
                     
                     </Tabs>
 

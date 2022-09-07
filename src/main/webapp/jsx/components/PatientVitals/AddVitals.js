@@ -64,7 +64,7 @@ const AddVitals = (props) => {
     //const [values, setValues] = useState([]);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
-
+    const [today, setToday] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
     const [vital, setVitalSignDto]= useState({
 
                                                 bodyWeight: "",
@@ -141,14 +141,15 @@ const AddVitals = (props) => {
                                 
                                 <div className="form-group mb-3 col-md-6">
                                         <FormGroup>
-                                        <Label >Date Of Vital Signs</Label>
+                                        <Label >Date Of Vital Signsss</Label>
                                         <InputGroup> 
                                             <Input 
                                                 type="date"
                                                 name="encounterDate"
                                                 id="encounterDate"
                                                 onChange={handleInputChangeVitalSignDto}
-                                                value={vital.encounterDate} 
+                                                value={vital.encounterDate}
+                                                max={today}
                                             />
 
                                         </InputGroup>

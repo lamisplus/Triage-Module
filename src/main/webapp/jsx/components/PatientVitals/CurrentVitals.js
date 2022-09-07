@@ -82,12 +82,12 @@ function CurrentVitals(props) {
     const [bmi, setBMI] = useState(0);
     const [visitVitalStatus, setVisitVitalStatus] = useState(false);
     const [currentVitalId, setCurrentVitalId]=useState(null);
+    const [today, setToday] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
 
     const [vital, setVitalSignDto]= useState({
         bodyWeight: "",
         diastolic: "",
         encounterDate: "",
-        facilityId: 1,
         height: "",
         personId: props.patientObj.id,
         pulse: "",
@@ -102,7 +102,7 @@ function CurrentVitals(props) {
         if(e.target.name =='bodyWeight' || e.target.name == 'height'){
             let height = e.target.name == 'height'? e.target.value:vital.height;
             let weight = e.target.name == 'bodyWeight'? e.target.value:vital.bodyWeight;
-            setBMI(Math.round(weight/Math.pow(height,2)))
+            setBMI(Math.round(weight/Math.pow((height/100),2)))
         }
     }
 
@@ -192,7 +192,7 @@ function CurrentVitals(props) {
                 console.log(response.data)
                 console.log('current vitals')
                 setVitalSignDto(response.data);
-                setBMI(Math.round(response.data.bodyWeight/Math.pow(response.data.height,2)));
+                setBMI(Math.round(response.data.bodyWeight/Math.pow((response.data.height/100),2)));
                 setVisitVitalStatus(true);
                 setCurrentVitalId(response.data.id)
                 props.setVisitVitalExists(true);
@@ -207,10 +207,10 @@ function CurrentVitals(props) {
                     <form >
                         <div className="row">
 
-                            <div className="form-group mb-3 col-md-6">
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
 
-                                    <Label className={classes.label} >Date Of Vital Sign</Label>
+                                    <Label className={classes.label} >Date Of Vital Sign *</Label>
                                     <InputGroup>
                                         <Input
                                             type="date"
@@ -219,15 +219,18 @@ function CurrentVitals(props) {
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.encounterDate}
                                             className={classes.input}
+                                            max={today}
+                                            required
                                         />
 
                                     </InputGroup>
 
                                 </FormGroup>
                             </div>
-                            <div className="form-group mb-3 col-md-6">
+
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-                                    <Label className={classes.label}>Pulse</Label>
+                                    <Label className={classes.label}>Pulse *</Label>
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
                                             bmp
@@ -239,6 +242,7 @@ function CurrentVitals(props) {
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.pulse}
                                             className={classes.input}
+                                            required = {true}
                                         />
 
 
@@ -250,9 +254,9 @@ function CurrentVitals(props) {
                                 </FormGroup>
                             </div>
 
-                            <div className="form-group mb-3 col-md-6">
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-                                    <Label className={classes.label}>Respiratory Rate</Label>
+                                    <Label className={classes.label}>Respiratory Rate *</Label>
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
                                             bpm
@@ -274,9 +278,9 @@ function CurrentVitals(props) {
                                     }
                                 </FormGroup>
                             </div>
-                            <div className="form-group mb-3 col-md-6">
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-                                    <Label className={classes.label}>Temperature</Label>
+                                    <Label className={classes.label}>Temperature *</Label>
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
                                             <sup>o</sup>C
@@ -298,31 +302,52 @@ function CurrentVitals(props) {
                                     }
                                 </FormGroup>
                             </div>
-                            <div className="form-group mb-3 col-md-6">
+                            <div className="form-group mb-3 col-md-4">
                                 <FormGroup>
-                                    <Label className={classes.label}>Blood Presure</Label>
+
                                     <InputGroup>
-                                        <InputGroupText className={classes.inputGroupText}>
-                                            systolic(mmHg)
-                                        </InputGroupText >
-                                        <Input
-                                            type="number"
-                                            name="systolic"
-                                            id="systolic"
-                                            onChange={handleInputChangeVitalSignDto}
-                                            value={vital.systolic}
-                                            className={classes.input}
-                                        />
+                                        <div style={{display:'flex',alignContent:'flex-start',alignItems:'center', paddingRight:'10px'}}><Label className={classes.label}>Blood Pressure *</Label></div>
+                                        <div>
+                                            <InputGroupText className={classes.inputGroupText}>
+                                                systolic(mmHg)
+                                            </InputGroupText >
+                                            <Input
+                                                type="number"
+                                                name="systolic"
+                                                id="systolic"
+                                                onChange={handleInputChangeVitalSignDto}
+                                                value={vital.systolic}
+                                                className={classes.input}
+                                            />
+                                            {vital.systolic > 200 ? (
+                                                <span className={classes.error}>{"systolic cannot be greater than 200."}</span>
+                                            ) : "" }
+                                        </div>
+                                        <div>
+                                            <InputGroupText className={classes.inputGroupText} style={{backgroundColor:'#992E62'}}>
+                                                diastolic (mmHg)
+                                            </InputGroupText>
+                                            <Input
+                                                type="text"
+                                                name="diastolic"
+                                                id="diastolic"
+                                                onChange={handleInputChangeVitalSignDto}
+                                                value={vital.diastolic}
+                                                className={classes.input}
+                                                style={{border:'2px solid #992E62'}}
+                                            />
+                                            {vital.diastolic > 200 ? (
+                                                <span className={classes.error}>{"diastolic cannot be greater than 200."}</span>
+                                            ) : "" }
+                                        </div>
 
                                     </InputGroup>
-                                    {vital.systolic > 200 ? (
-                                        <span className={classes.error}>{"Blood Pressure cannot be greater than 200."}</span>
-                                    ) : "" }
+
                                 </FormGroup>
                             </div>
-                            <div className="form-group mb-3 col-md-6">
+{/*                            <div className="form-group mb-3 col-md-6">
                                 <FormGroup>
-                                    <Label className={classes.label}>Blood Presure</Label>
+                                    <Label className={classes.label}>Blood Pressure *</Label>
 
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
@@ -342,10 +367,10 @@ function CurrentVitals(props) {
                                         <span className={classes.error}>{"Blood Pressure cannot be greater than 200."}</span>
                                     ) : "" }
                                 </FormGroup>
-                            </div>
-                            <div className="form-group mb-3 col-md-4">
+                            </div>*/}
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-                                    <Label className={classes.label}>Body Weight</Label>
+                                    <Label className={classes.label}>Body Weight *</Label>
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
                                             kg
@@ -367,12 +392,12 @@ function CurrentVitals(props) {
                                     }
                                 </FormGroup>
                             </div>
-                            <div className="form-group mb-3 col-md-4">
+                            <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-                                    <Label className={classes.label}>Height</Label>
+                                    <Label className={classes.label}>Height *</Label>
                                     <InputGroup>
                                         <InputGroupText className={classes.inputGroupText}>
-                                            m
+                                            cm
                                         </InputGroupText>
                                         <Input
                                             type="number"
@@ -382,36 +407,21 @@ function CurrentVitals(props) {
                                             value={vital.height}
                                             className={classes.input}
                                         />
-
+                                        <InputGroupText className={classes.inputGroupText} style={{backgroundColor:'#992E62',color:'#fff'}}>
+                                            {vital.height/100} M
+                                        </InputGroupText>
                                     </InputGroup>
-                                    {vital.height > 3 ? (
-                                        <span className={classes.error}>{"Height cannot be greater than 3."}</span>
+
+                                    {vital.height > 300 ? (
+                                        <span className={classes.error}>{"Height cannot be greater than 300."}</span>
                                     ) : "" }
                                 </FormGroup>
                             </div>
 
-                            <div className="form-group mb-3 col-md-4">
-                                <FormGroup>
-                                    <Label className={classes.label}>BMI</Label>
-                                    <InputGroup>
-                                        <InputGroupText className={classes.inputGroupText}>
-                                            BMI
-                                        </InputGroupText>
-                                        <Input
-                                            type="number"
-                                            name="bmi"
-                                            id="bmi"
-                                            disabled={true}
-                                            onChange={handleInputChangeVitalSignDto}
-                                            value={bmi}
-                                            className={classes.input}
-                                        />
-
-                                    </InputGroup>
-{/*                                    {vital.height > 3 ? (
-                                        <span className={classes.error}>{"Height cannot be greater than 3."}</span>
-                                    ) : "" }*/}
-                                </FormGroup>
+                            <div className="form-group mb-3 col-md-2">
+                                <div style={{marginTop:'5px',display:'flex',alignContent:'flex-start',alignItems:'center', height:'100%',border:'23px solid #fff', backgroundColor:'rgb(232, 234, 236)',color:'#014d88 ',fontSize:'16px',padding:'15px',fontWeight:'bold'}}>
+                                    <h3 style={{color:'#014d88 '}}>BMI - <span style={{color:'#992E62'}}>{bmi}</span> </h3>
+                                </div>
                             </div>
 
 
