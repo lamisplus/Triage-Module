@@ -35,4 +35,4 @@ node_modules
 node
 build
 target
-src/main/resources/views/static/triage/*
+src/main/resources/views/static/triage/

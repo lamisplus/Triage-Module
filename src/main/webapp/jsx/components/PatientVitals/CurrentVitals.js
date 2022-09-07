@@ -39,6 +39,9 @@ const useStyles = makeStyles(theme => ({
     root: {
         '& > *': {
             margin: theme.spacing(1)
+        },
+        '& .input-group-text':{
+            fontSize:'0.75rem'
         }
     },
     input: {
@@ -62,7 +65,7 @@ const useStyles = makeStyles(theme => ({
         borderRadius:'0px'
     },
     label:{
-        fontSize:'16px',
+        fontSize:'1.1rem',
         color:'rgb(153, 46, 98)',
         fontWeight:'600'
     }
@@ -201,7 +204,7 @@ function CurrentVitals(props) {
             });
     }
     return (
-        <div>
+        <div className={classes.root}>
             <Card >
                 <CardBody>
                     <form >
@@ -306,8 +309,8 @@ function CurrentVitals(props) {
                                 <FormGroup>
 
                                     <InputGroup>
-                                        <div style={{display:'flex',alignContent:'flex-start',alignItems:'center', paddingRight:'10px'}}><Label className={classes.label}>Blood Pressure *</Label></div>
-                                        <div>
+                                        <div style={{width:'30%', display:'flex',alignContent:'flex-start',alignItems:'center', paddingRight:'10px'}}><Label className={classes.label}>Blood Pressure *</Label></div>
+                                        <div style={{width:'35%'}}>
                                             <InputGroupText className={classes.inputGroupText}>
                                                 systolic(mmHg)
                                             </InputGroupText >
@@ -323,7 +326,7 @@ function CurrentVitals(props) {
                                                 <span className={classes.error}>{"systolic cannot be greater than 200."}</span>
                                             ) : "" }
                                         </div>
-                                        <div>
+                                        <div style={{width:'35%'}}>
                                             <InputGroupText className={classes.inputGroupText} style={{backgroundColor:'#992E62'}}>
                                                 diastolic (mmHg)
                                             </InputGroupText>
@@ -419,8 +422,8 @@ function CurrentVitals(props) {
                             </div>
 
                             <div className="form-group mb-3 col-md-2">
-                                <div style={{marginTop:'5px',display:'flex',alignContent:'flex-start',alignItems:'center', height:'100%',border:'23px solid #fff', backgroundColor:'rgb(232, 234, 236)',color:'#014d88 ',fontSize:'16px',padding:'15px',fontWeight:'bold'}}>
-                                    <h3 style={{color:'#014d88 '}}>BMI - <span style={{color:'#992E62'}}>{bmi}</span> </h3>
+                                <div style={{marginTop:'5px',display:'flex',alignContent:'flex-start',alignItems:'center', height:'100%', backgroundColor:'#fff',color:'#014d88 ',fontSize:'16px',padding:'15px',fontWeight:'bold'}}>
+                                    <h3 style={{color:'#014d88',fontSize:'1.2rem'}}>BMI - <span style={{color:'#992E62'}}>{bmi}</span> </h3>
                                 </div>
                             </div>
 
