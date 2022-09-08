@@ -203,7 +203,7 @@ const Patients = (props) => {
                   field: "name",
                 },
                 { title: "Hospital Number", field: "hospital_number", filtering: false },
-                { title: "Gender", field: "gender", filtering: false },
+                { title: "Sex", field: "sex", filtering: false },
                 { title: "Age", field: "age", filtering: false },
                 { title: "Actions", field: "actions", filtering: false }, 
               ]}
@@ -211,7 +211,7 @@ const Patients = (props) => {
 
                     name:row.firstName + " " + row.surname,
                     hospital_number: getHospitalNumber(row.identifier),
-                    gender:row.gender.display,
+                    sex:row.sex,
                     age: (row.dateOfBirth === 0 ||
                         row.dateOfBirth === undefined ||
                         row.dateOfBirth === null ||

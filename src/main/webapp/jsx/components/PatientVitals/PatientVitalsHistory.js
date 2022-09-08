@@ -147,9 +147,9 @@ const Patients = (props) => {
                 { title: "Pulse", field: "pulse", filtering: false },
                 { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
                 { title: "Blood Presure", field: "bloodPresure", filtering: false },
-                { title: "Temperature", field: "temperature", filtering: false },
-                { title: "Height", field: "Height", filtering: false },
-                { title: "Weight", field: "Weight", filtering: false },
+                { title: <p>Temperature &#8451;</p>, field: "temperature", filtering: false },
+                { title: "Height(cm)", field: "Height", filtering: false },
+                { title: "Weight(kg)", field: "Weight", filtering: false },
                 { title: "BMI", field: "BMI", filtering: false },
 
               
@@ -159,11 +159,11 @@ const Patients = (props) => {
                   date:row.encounterDate,
                   pulse:row.pulse,
                   respiratoryRate:row.respiratoryRate, 
-                  temperature:row.temperature,
+                  temperature:<p>{row.temperature}&#8451;</p>,
                   bloodPresure:row.systolic + " /"+ row.diastolic,
-                  Height:row.height,
-                  Weight:row.bodyWeight,
-                  BMI: Math.round(row.bodyWeight/Math.pow(row.height,2))
+                  Height:row.height+' cm',
+                  Weight:row.bodyWeight+' kg',
+                  BMI: Math.round(row.bodyWeight/Math.pow((row.height/100),2))
                   }))}
             
                         options={{
