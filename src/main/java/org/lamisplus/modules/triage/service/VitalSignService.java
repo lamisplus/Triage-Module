@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.controller.apierror.EntityNotFoundException;
 import org.lamisplus.modules.base.controller.apierror.RecordExistException;
-import org.lamisplus.modules.base.domain.entities.User;
+import org.lamisplus.modules.base.service.OrganisationUnitService;
 import org.lamisplus.modules.base.service.UserService;
 import org.lamisplus.modules.patient.domain.entity.Person;
 import org.lamisplus.modules.patient.domain.entity.Visit;
@@ -32,66 +32,52 @@ public class VitalSignService {
 
     private final UserService userService;
 
+
     public void archivedVitalSign(Long id) {
-        VitalSign existingVitalSign = getExistingVitalSign (id);
-        existingVitalSign.setArchived (1);
-        vitalSignRepository.save (existingVitalSign);
+        VitalSign existingVitalSign = getExistingVitalSign(id);
+        existingVitalSign.setArchived(1);
+        vitalSignRepository.save(existingVitalSign);
     }
 
 
     public VitalSignDto registerVitalSign(VitalSignDto vitalSignDto) {
-        log.info ("I am in service {}", vitalSignDto.getEncounterDate ());
-        Long personId = vitalSignDto.getPersonId ();
-        Person existingPerson = getExistingPerson (personId);
-        Long visitId = vitalSignDto.getVisitId ();
-        if(visitId != null){
-            Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId (visitId);
-            if (existVitalSignByVisitId.isPresent ())
-                throw new RecordExistException (VitalSign.class, "id", "" + visitId);
+        log.info("I am in service {}", vitalSignDto.getEncounterDate());
+        Long personId = vitalSignDto.getPersonId();
+        Person existingPerson = getExistingPerson(personId);
+        Long visitId = vitalSignDto.getVisitId();
+        if (visitId != null) {
+            Optional<VitalSign> existVitalSignByVisitId = getExistVitalSignByVisitId(visitId);
+            if (existVitalSignByVisitId.isPresent())
+                throw new RecordExistException(VitalSign.class, "id", "" + visitId);
         }
-        Optional<User> currentUser = userService.getUserWithRoles ();
-        Long facilityId = 0L;
-
-        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
-        if (currentUser.isPresent ()) {
-            log.info ("currentUser: " + currentUser.get ());
-            User user = currentUser.get ();
-            facilityId = user.getCurrentOrganisationUnitId ();
-            vitalSign.setFacilityId(facilityId);
-        }
-        vitalSign.setUuid (UUID.randomUUID ().toString ());
-        vitalSign.setArchived (0);
-        vitalSign.setPerson (existingPerson);
-        return convertVitalSignEntityToVitalSignDto (vitalSignRepository.save (vitalSign));
+        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity(vitalSignDto);
+        vitalSign.setUuid(UUID.randomUUID().toString());
+        vitalSign.setArchived(0);
+        vitalSign.setPerson(existingPerson);
+        return convertVitalSignEntityToVitalSignDto(vitalSignRepository.save(vitalSign));
     }
 
 
     private Visit getVisit(Long visitId) {
-        return visitRepository.findById (visitId).orElseThrow (() ->new EntityNotFoundException (Visit.class, "id", String.valueOf (visitId)));
+        return visitRepository.findById(visitId).orElseThrow(() -> new EntityNotFoundException(Visit.class, "id", String.valueOf(visitId)));
     }
 
 
     private Optional<VitalSign> getExistVitalSignByVisitId(Long visitId) {
-        Visit visit = getVisit (visitId);
-        return vitalSignRepository.getVitalSignByVisitAndArchived (visit, 0);
+        Visit visit = getVisit(visitId);
+        return vitalSignRepository.getVitalSignByVisitAndArchived(visit, 0);
     }
 
     public VitalSignDto getVitalSignByVisitId(Long visitId) {
-        VitalSign vitalSign = getExistVitalSignByVisitId (visitId)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id", ""+ visitId));
-        return convertVitalSignEntityToVitalSignDto (vitalSign);
+        VitalSign vitalSign = getExistVitalSignByVisitId(visitId)
+                .orElseThrow(() -> new EntityNotFoundException(VitalSign.class, "id", "" + visitId));
+        return convertVitalSignEntityToVitalSignDto(vitalSign);
 
     }
 
 
     public VitalSignDto updateVitalSign(Long id, VitalSignDto vitalSignDto) {
-        Optional<User> currentUser = userService.getUserWithRoles ();
-        Long facilityId = 0L;
-        VitalSign existingVitalSign = getExistingVitalSign (id);
-/*        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
-        vitalSign.setId (existingVitalSign.getId ());
-        vitalSign.setArchived (0);
-        VitalSign updateVitalSign = vitalSignRepository.save (vitalSign);*/
+        VitalSign existingVitalSign = getExistingVitalSign(id);
         existingVitalSign.setBodyWeight(vitalSignDto.getBodyWeight());
         existingVitalSign.setDiastolic(vitalSignDto.getDiastolic());
         existingVitalSign.setSystolic(vitalSignDto.getSystolic());
@@ -100,63 +86,58 @@ public class VitalSignService {
         existingVitalSign.setTemperature(vitalSignDto.getTemperature());
         existingVitalSign.setRespiratoryRate(vitalSignDto.getRespiratoryRate());
         existingVitalSign.setEncounterDate(vitalSignDto.getEncounterDate());
-        VitalSign updateVitalSign = vitalSignRepository.save (existingVitalSign);
-        if (currentUser.isPresent ()) {
-            log.info ("currentUser: " + currentUser.get ());
-            User user = currentUser.get ();
-            facilityId = user.getCurrentOrganisationUnitId ();
-            updateVitalSign.setFacilityId(facilityId);
-        }
-        return convertVitalSignEntityToVitalSignDto (updateVitalSign);
+        VitalSign updateVitalSign = vitalSignRepository.save(existingVitalSign);
+        return convertVitalSignEntityToVitalSignDto(updateVitalSign);
     }
 
 
     public List<VitalSignDto> getVitalSign() {
-        return vitalSignRepository.getVitalSignByArchived (0)
-                .stream ()
-                .map (this::convertVitalSignEntityToVitalSignDto)
-                .collect (Collectors.toList ());
+        return vitalSignRepository.getVitalSignByArchived(0)
+                .stream()
+                .map(this::convertVitalSignEntityToVitalSignDto)
+                .collect(Collectors.toList());
     }
 
     public VitalSignDto getVitalSignById(Long id) {
-        return convertVitalSignEntityToVitalSignDto (getExistingVitalSign (id));
+        return convertVitalSignEntityToVitalSignDto(getExistingVitalSign(id));
     }
 
     public List<VitalSignDto> getVitalSignByPersonId(Long personId) {
-        Person existingPerson = getExistingPerson (personId);
-        return vitalSignRepository.getVitalSignByPersonAndArchived (existingPerson, 0)
-                .stream ()
-                .map (this::convertVitalSignEntityToVitalSignDto)
-                .collect (Collectors.toList ());
+        Person existingPerson = getExistingPerson(personId);
+        return vitalSignRepository.getVitalSignByPersonAndArchived(existingPerson, 0)
+                .stream()
+                .map(this::convertVitalSignEntityToVitalSignDto)
+                .collect(Collectors.toList());
     }
 
 
     private VitalSign getExistingVitalSign(Long id) {
         return vitalSignRepository
-                .findById (id)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id",""+id));
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(VitalSign.class, "id", "" + id));
     }
 
     private Person getExistingPerson(Long personId) {
         return personRepository
-                .findById (personId)
-                .orElseThrow (() -> new EntityNotFoundException (VitalSign.class, "id", "" + personId));
+                .findById(personId)
+                .orElseThrow(() -> new EntityNotFoundException(VitalSign.class, "id", "" + personId));
     }
 
     private VitalSign convertVitalSignDtoToVitalSignEntity(VitalSignDto vitalSignDto) {
-        VitalSign vitalSign = new VitalSign ();
-        BeanUtils.copyProperties (vitalSignDto, vitalSign);
-        Visit visit = getVisit (vitalSignDto.getVisitId ());
-        vitalSign.setVisit (visit);
+        VitalSign vitalSign = new VitalSign();
+        BeanUtils.copyProperties(vitalSignDto, vitalSign);
+        Visit visit = getVisit(vitalSignDto.getVisitId());
+        userService.getUserWithRoles().ifPresent(user -> visit.setFacilityId(user.getCurrentOrganisationUnitId()));
+        vitalSign.setVisit(visit);
         return vitalSign;
     }
 
 
     private VitalSignDto convertVitalSignEntityToVitalSignDto(VitalSign vitalSign) {
-        VitalSignDto vitalSignDto = new VitalSignDto ();
-        BeanUtils.copyProperties (vitalSign, vitalSignDto);
-        Visit visit = vitalSign.getVisit ();
-        vitalSignDto.setVisitId (visit.getId ());
+        VitalSignDto vitalSignDto = new VitalSignDto();
+        BeanUtils.copyProperties(vitalSign, vitalSignDto);
+        Visit visit = vitalSign.getVisit();
+        vitalSignDto.setVisitId(visit.getId());
         vitalSignDto.setPersonId(vitalSign.getPerson().getId());
         return vitalSignDto;
     }
