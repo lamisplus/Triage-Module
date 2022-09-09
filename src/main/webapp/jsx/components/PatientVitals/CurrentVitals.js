@@ -323,7 +323,10 @@ function CurrentVitals(props) {
                                                 className={classes.input}
                                             />
                                             {vital.systolic > 200 ? (
-                                                <span className={classes.error}>{"systolic cannot be greater than 200."}</span>
+                                                <span className={classes.error}>{"systolic cannot be greater than 200"}</span>
+                                            ) : "" }
+                                            {vital.systolic < 90 ? (
+                                                <span className={classes.error}>{"systolic cannot be less than 90"}</span>
                                             ) : "" }
                                         </div>
                                         <div style={{width:'35%'}}>
@@ -340,7 +343,10 @@ function CurrentVitals(props) {
                                                 style={{border:'2px solid #992E62'}}
                                             />
                                             {vital.diastolic > 200 ? (
-                                                <span className={classes.error}>{"diastolic cannot be greater than 200."}</span>
+                                                <span className={classes.error}>{"diastolic cannot be greater than 200"}</span>
+                                            ) : "" }
+                                            { vital.diastolic < 90  ? (
+                                                <span className={classes.error}>{"diastolic cannot be less than 90"}</span>
                                             ) : "" }
                                         </div>
 

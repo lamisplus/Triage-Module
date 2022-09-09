@@ -4,6 +4,7 @@ import MatButton from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
+import { Step, Label, Segment, Icon } from "semantic-ui-react";
 import axios from "axios";
 import { toast} from "react-toastify";
 import { url as baseUrl, token } from "../../../../../api";
@@ -13,6 +14,10 @@ import {format} from 'date-fns';
 import 'react-summernote/dist/react-summernote.css'; // import styles
 import { Spinner } from "reactstrap";
 import Select from "react-select";
+import DualListBox from "react-dual-listbox";
+import 'react-dual-listbox/lib/react-dual-listbox.css';
+import _ from 'lodash';
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -88,13 +93,20 @@ const AddVitals = (props) => {
                  
                 })
                 .catch((error) => {    
-                });        
+                });
+            axios.get(`${baseUrl}patient/encounter/visit/${patientObj.visitId}`,{ headers: {"Authorization" : `Bearer ${token}`}})
+                .then(response =>{
+                    setSelectedOption(_.uniq(_.map(response.data,'serviceCode')));
+                    alert('ss')
+                    console.log(patientObj)
+                    alert('ss')
+                })
         }
     const createdAt = new Date();
 
-    const [postServices, setPostServices]= useState({                                                  
+    const [postServices, setPostServices]= useState({
+                                                        facilityId:patientObj.facilityId,
                                                         encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
-                                                        facilityId: 1,
                                                         personId:"",
                                                         serviceCode:"",
                                                         visitId: ""
@@ -108,7 +120,7 @@ const AddVitals = (props) => {
                 setSaving(true);
                 let serviceArr = []
                 selectedOption.forEach(function (value, index, array) {
-                    serviceArr.push(value['value'])
+                    serviceArr.push(value)
                 })
                 postServices.personId=patientObj.id
                 postServices.visitId=patientObj.visitId
@@ -141,8 +153,8 @@ const AddVitals = (props) => {
       <div >
          
               <Modal show={props.showModal} toggle={props.toggle} className="fade" size="lg">
-             <Modal.Header toggle={props.toggle} style={{backgroundColor:"#eeeeee"}}>
-                Post Patient
+             <Modal.Header toggle={props.toggle} style={{backgroundColor:"#fff"}}>
+                 <Label for="post-services" style={{backgroundColor:"#fff",color:'#014d88',fontWeight:'bolder',fontSize:'18px'}}><h5 style={{fontWeight:"bold",fontSize:'30px',color:'#992E62'}}>Post Patient</h5></Label>
                  <Button
                     variant=""
                     className="btn-close"
@@ -154,7 +166,12 @@ const AddVitals = (props) => {
                             <CardBody>
                             <form >
                                 <div className="row">
-                              
+                                    <DualListBox
+                                        options={services}
+                                        onChange={setSelectedOption}
+                                        selected={selectedOption}
+                                    />
+{/*
                                    <Select
                                         onChange={setSelectedOption}
                                         value={selectedOption}
@@ -162,6 +179,7 @@ const AddVitals = (props) => {
                                         isMulti="true"
                                         noOptionsMessage="true"
                                     />
+*/}
 
                                 </div>
                                 
@@ -175,9 +193,10 @@ const AddVitals = (props) => {
                                     className={classes.button}
                                     startIcon={<SaveIcon />}
                                     onClick={handleSubmit}
+                                    style={{backgroundColor:'#014d88'}}
                                     >
                                     {!saving ? (
-                                    <span style={{ textTransform: "capitalize" }}>Saved</span>
+                                    <span style={{ textTransform: "capitalize" }}>Save</span>
                                     ) : (
                                     <span style={{ textTransform: "capitalize" }}>Saving...</span>
                                     )}

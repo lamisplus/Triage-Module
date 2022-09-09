@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lamisplus.modules.base.controller.apierror.EntityNotFoundException;
 import org.lamisplus.modules.base.controller.apierror.RecordExistException;
+import org.lamisplus.modules.base.domain.entities.User;
+import org.lamisplus.modules.base.service.UserService;
 import org.lamisplus.modules.patient.domain.entity.Person;
 import org.lamisplus.modules.patient.domain.entity.Visit;
 import org.lamisplus.modules.patient.repository.PersonRepository;
@@ -28,6 +30,7 @@ public class VitalSignService {
 
     private final VisitRepository visitRepository;
 
+    private final UserService userService;
 
     public void archivedVitalSign(Long id) {
         VitalSign existingVitalSign = getExistingVitalSign (id);
@@ -46,7 +49,16 @@ public class VitalSignService {
             if (existVitalSignByVisitId.isPresent ())
                 throw new RecordExistException (VitalSign.class, "id", "" + visitId);
         }
+        Optional<User> currentUser = userService.getUserWithRoles ();
+        Long facilityId = 0L;
+
         VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
+        if (currentUser.isPresent ()) {
+            log.info ("currentUser: " + currentUser.get ());
+            User user = currentUser.get ();
+            facilityId = user.getCurrentOrganisationUnitId ();
+            vitalSign.setFacilityId(facilityId);
+        }
         vitalSign.setUuid (UUID.randomUUID ().toString ());
         vitalSign.setArchived (0);
         vitalSign.setPerson (existingPerson);
@@ -73,6 +85,8 @@ public class VitalSignService {
 
 
     public VitalSignDto updateVitalSign(Long id, VitalSignDto vitalSignDto) {
+        Optional<User> currentUser = userService.getUserWithRoles ();
+        Long facilityId = 0L;
         VitalSign existingVitalSign = getExistingVitalSign (id);
 /*        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity (vitalSignDto);
         vitalSign.setId (existingVitalSign.getId ());
@@ -87,6 +101,12 @@ public class VitalSignService {
         existingVitalSign.setRespiratoryRate(vitalSignDto.getRespiratoryRate());
         existingVitalSign.setEncounterDate(vitalSignDto.getEncounterDate());
         VitalSign updateVitalSign = vitalSignRepository.save (existingVitalSign);
+        if (currentUser.isPresent ()) {
+            log.info ("currentUser: " + currentUser.get ());
+            User user = currentUser.get ();
+            facilityId = user.getCurrentOrganisationUnitId ();
+            updateVitalSign.setFacilityId(facilityId);
+        }
         return convertVitalSignEntityToVitalSignDto (updateVitalSign);
     }
 
