@@ -70,7 +70,6 @@ const AddVitals = (props) => {
                                                 bodyWeight: "",
                                                 diastolic: "",
                                                 encounterDate: "",
-                                                facilityId: 1,
                                                 height: "",
                                                 personId: props.patientObj.id,
                                                 pulse: "",
