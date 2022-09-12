@@ -127,7 +127,8 @@ public class VitalSignService {
         VitalSign vitalSign = new VitalSign();
         BeanUtils.copyProperties(vitalSignDto, vitalSign);
         Visit visit = getVisit(vitalSignDto.getVisitId());
-        userService.getUserWithRoles().ifPresent(user -> visit.setFacilityId(user.getCurrentOrganisationUnitId()));
+        userService.getUserWithRoles().ifPresent(user -> vitalSign.setFacilityId(user.getCurrentOrganisationUnitId()));
+        log.info("vital sign {}", vitalSign);
         vitalSign.setVisit(visit);
         return vitalSign;
     }

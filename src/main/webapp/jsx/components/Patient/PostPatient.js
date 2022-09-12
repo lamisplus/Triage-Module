@@ -97,15 +97,11 @@ const AddVitals = (props) => {
             axios.get(`${baseUrl}patient/encounter/visit/${patientObj.visitId}`,{ headers: {"Authorization" : `Bearer ${token}`}})
                 .then(response =>{
                     setSelectedOption(_.uniq(_.map(response.data,'serviceCode')));
-                    alert('ss')
-                    console.log(patientObj)
-                    alert('ss')
                 })
         }
     const createdAt = new Date();
 
     const [postServices, setPostServices]= useState({
-                                                        facilityId:patientObj.facilityId,
                                                         encounterDate:format(new Date(newDate), 'yyyy-MM-dd'),
                                                         personId:"",
                                                         serviceCode:"",
