@@ -47,4 +47,5 @@ public class VitalSignDto implements Serializable {
     private Integer archived;
     @NotNull
     private Long facilityId;
+    private LocalDate visitStartDate;
 }

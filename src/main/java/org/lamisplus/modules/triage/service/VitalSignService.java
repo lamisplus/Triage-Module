@@ -165,6 +165,8 @@ public class VitalSignService {
         Visit visit = vitalSign.getVisit();
         vitalSignDto.setVisitId(visit.getId());
         vitalSignDto.setPersonId(vitalSign.getPerson().getId());
+        vitalSignDto.setEncounterDate(vitalSign.getEncounterDate());
+        vitalSignDto.setVisitStartDate(visit.getVisitStartDate());
         return vitalSignDto;
     }
 }
