@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VitalSignRequestDto {
+public class VitalSignRequestDto implements Serializable{
     private Long id;
     @NotNull
     private Double bodyWeight;
