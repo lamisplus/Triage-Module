@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 import {makeStyles} from "@material-ui/core/styles";
 import {Button} from "semantic-ui-react";
 import {Link} from "react-router-dom";
+import moment from "moment";
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -84,13 +85,17 @@ function CurrentVitals(props) {
     const [errors, setErrors] = useState({});
     const [bmi, setBMI] = useState(0);
     const [visitVitalStatus, setVisitVitalStatus] = useState(false);
+    const [visitStartDate, setVisitStartDate] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
     const [currentVitalId, setCurrentVitalId]=useState(null);
-    const [today, setToday] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
+    const [today, setToday] = useState(moment().format('YYYY-MM-DDTHH:mm'));
+
+
+
 
     const [vital, setVitalSignDto]= useState({
         bodyWeight: "",
         diastolic: "",
-        encounterDate: "",
+        captureDate: moment().format('YYYY-MM-DDTHH:mm'),
         height: "",
         personId: props.patientObj.id,
         pulse: "",
@@ -126,6 +131,7 @@ function CurrentVitals(props) {
         //If visit has a vital sign update else create new
         if(visitVitalStatus){
             setSaving(true);
+            vital.captureDate =  moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format('yyyy-MM-DD HH:mm');
             axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vital,
                 { headers: {"Authorization" : `Bearer ${token}`}},
 
@@ -145,6 +151,7 @@ function CurrentVitals(props) {
                 });
         }else{
             setSaving(true);
+            vital.captureDate =  moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format('yyyy-MM-DD HH:mm');
             axios.post(`${baseUrl}patient/vital-sign/`, vital,
                 { headers: {"Authorization" : `Bearer ${token}`}},
 
@@ -186,22 +193,32 @@ function CurrentVitals(props) {
     }, []);
     ///GET LIST OF Patients
     async function getLatestVitals() {
+        axios.get(`${baseUrl}patient/visit/${props.patientObj.visitId}`,{headers:{"Authorization":`Bearer ${token}`}})
+            .then(response =>{
+                setVisitStartDate(new Date(response.data.checkInDate).toISOString().substr(0, 10).replace('T', ' '))
+            })
         axios
             .get(`${baseUrl}patient/vital-sign/visit/${props.patientObj.visitId}`,
                 { headers: {"Authorization" : `Bearer ${token}`} }
             )
             .then((response) => {
-                console.log('current vitals')
-                console.log(response.data)
-                console.log('current vitals')
                 setVitalSignDto(response.data);
                 setBMI(Math.round(response.data.bodyWeight/Math.pow((response.data.height/100),2)));
                 setVisitVitalStatus(true);
                 setCurrentVitalId(response.data.id)
+                vital.captureDate = moment(response.data.captureDate).format('YYYY-MM-DDTHH:mm')
+
                 props.setVisitVitalExists(true);
             })
             .catch((error) => {
             });
+/*        axios.get(`${baseUrl}patient/visit/visit-by-patient/${props.patientObj.visitId}`,
+            { headers: {"Authorization" : `Bearer ${token}`} }
+            ).then((response)=>{
+                console.log("response.data")
+                console.log(response.data)
+                console.log("response.data")
+        })*/
     }
     return (
         <div className={classes.root}>
@@ -212,17 +229,17 @@ function CurrentVitals(props) {
 
                             <div className="form-group mb-3 col-md-3">
                                 <FormGroup>
-
                                     <Label className={classes.label} >Date Of Vital Sign *</Label>
                                     <InputGroup>
                                         <Input
-                                            type="date"
-                                            name="encounterDate"
-                                            id="encounterDate"
+                                            type="datetime-local"
+                                            name="captureDate"
+                                            id="captureDate"
                                             onChange={handleInputChangeVitalSignDto}
-                                            value={vital.encounterDate}
+                                            value={vital.captureDate}
                                             className={classes.input}
                                             max={today}
+                                            min={moment(visitStartDate).format('YYYY-MM-DDTHH:mm')}
                                             required
                                         />
 

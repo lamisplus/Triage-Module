@@ -30,12 +30,12 @@ const Home = () => {
                     className="mb-3"
                     >
                    
-                    <Tab eventKey="home" title="Checked-In">
+                    <Tab eventKey="home" title="Checked-In Patients">
                       <CheckedInPatientList />
                     </Tab>
-{/*                    <Tab eventKey="find-patient" title="Find Patient">
+                    <Tab eventKey="find-patient" title="Checked-Out Patients">
                         <CheckedInPatientList />
-                    </Tab>*/}
+                    </Tab>
                     
                     </Tabs>
 

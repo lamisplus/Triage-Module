@@ -25,7 +25,7 @@ import {  Card,CardBody,} from 'reactstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { makeStyles } from '@material-ui/core/styles'
 
-import { MdDashboard } from "react-icons/md";
+import {MdDashboard, MdPerson,MdRemoveRedEye} from "react-icons/md";
 import {Menu,MenuList,MenuButton,MenuItem,} from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
@@ -33,6 +33,7 @@ import Moment from "moment";
 import moment from "moment";
 import ButtonMui from "@material-ui/core/Button";
 import AddVitals from './AddVitals'
+import SplitActionButton from "../../layouts/SplitActionButton";
 
 
 const tableIcons = {
@@ -104,11 +105,27 @@ const Patients = (props) => {
     const [patientList, setPatientList] = useState([])
     const [patientObj, setpatientObj] = useState(props.patientObj)
     const [modal, setModal] = useState(false);
+    const [permissions, setPermissions] = useState([]);
     const toggle = () => setModal(!modal);
 
+
     useEffect(() => {
-        patientsVitalsSigns()
+        userPermission();
+        patientsVitalsSigns();
       }, []);
+        const userPermission =()=>{
+            axios
+                .get(`${baseUrl}account`,
+                    { headers: {"Authorization" : `Bearer ${token}`} }
+                )
+                .then((response) => {
+                    setPermissions(response.data.permissions);
+
+                })
+                .catch((error) => {
+                });
+
+        }
         ///GET LIST OF Patients
         async function patientsVitalsSigns() {
             axios
@@ -126,7 +143,23 @@ const Patients = (props) => {
             setModal(!modal)
         }
 
-
+    function actionItems(row){
+        return  [            {
+            type:'single',
+            actions:[
+                {
+                    name:'View/update',
+                    type:'link',
+                    icon:<MdRemoveRedEye  size="22"/>,
+                    to:{
+                        pathname: "#",
+                        state: { patientObj: row , permissions:permissions  }
+                    }
+                }
+            ]
+        }
+        ]
+    }
   return (
     <div>
 
@@ -134,36 +167,50 @@ const Patients = (props) => {
             icons={tableIcons}
               title=""
               columns={[
-              // { title: " ID", field: "Id" },
-                {
-                  title: "Ecounter Date",
-                  field: "date",
-                    headerStyle: {
-                        backgroundColor: "#039be5",
-                        border:'2px solid #fff',
-                        paddingRight:'30px'
-                    }
-                },
-                { title: "Pulse", field: "pulse", filtering: false },
-                { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
-                { title: "Blood Presure", field: "bloodPresure", filtering: false },
-                { title: <p>Temperature &#8451;</p>, field: "temperature", filtering: false },
-                { title: "Height(cm)", field: "Height", filtering: false },
-                { title: "Weight(kg)", field: "Weight", filtering: false },
-                { title: "BMI", field: "BMI", filtering: false },
-
-              
+                  {
+                      title: "Capture Date",
+                      field: "date",
+                        headerStyle: {
+                            backgroundColor: "#039be5",
+                            border:'2px solid #fff',
+                            paddingRight:'30px'
+                        }
+                  },
+                  { title: "Pulse", field: "pulse", filtering: false },
+                  { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
+                  { title: "Blood Presure", field: "bloodPresure", filtering: false },
+                  { title: <p>Temperature &#8451;</p>, field: "temperature", filtering: false },
+                  { title: "Height(cm)", field: "Height", filtering: false },
+                  { title: "Weight(kg)", field: "Weight", filtering: false },
+                  { title: "BMI", field: "BMI", filtering: false },
+/*                  { title: "Status", field: "BMI", filtering: false },
+                  {
+                      title: "Action",
+                      field: "actions",
+                      headerStyle: {
+                          backgroundColor: "#992E62",
+                          border:'2px solid #fff',
+                          paddingRight:'30px'
+                      }
+                  },*/
               ]}
               data={ patientList.map((row) => ({
                   //Id: manager.id,
-                  date:row.encounterDate,
+                  date:moment(row.captureDate).format("YYYY-MM-DD h:mm a"),
                   pulse:row.pulse,
                   respiratoryRate:row.respiratoryRate, 
                   temperature:<p>{row.temperature}&#8451;</p>,
                   bloodPresure:row.systolic + " /"+ row.diastolic,
                   Height:row.height+' cm',
                   Weight:row.bodyWeight+' kg',
-                  BMI: Math.round(row.bodyWeight/Math.pow((row.height/100),2))
+                  BMI: Math.round(row.bodyWeight/Math.pow((row.height/100),2)),
+/*                  actions:
+                      <div>
+                          {permissions.includes('edit_vitals') || permissions.includes("all_permission") ? (
+                              <SplitActionButton actions={actionItems(row)} />
+                          ):""
+                          }
+                      </div>*/
                   }))}
             
                         options={{

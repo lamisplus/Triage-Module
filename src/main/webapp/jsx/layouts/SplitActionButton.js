@@ -12,6 +12,8 @@ import {FaEye, FaCaretDown } from "react-icons/fa";
 import Divider from '@mui/material/Divider';
 import {useRef} from "react";
 import { Link } from 'react-router-dom'
+import {TiArrowForward} from "react-icons/ti";
+import {MdDashboard} from "react-icons/md";
 
 
 
@@ -41,16 +43,41 @@ export default function SplitActionButton(props) {
 
     return (
         <React.Fragment>
-            <ButtonGroup variant="contained" ref={anchorRef} style={{backgroundColor:'rgb(153, 46, 98)', height:'30px',width:`${ props.actions[0].type === 'single' ?'auto':'150px'}`}} >
+            <ButtonGroup  variant="contained" ref={anchorRef} style={{backgroundColor:'rgb(153, 46, 98)', height:'30px',width:`${ props.actions[0].type === 'single' ?'auto':'150px'}`}} >
 
-                <Link to={props.actions[0].actions[0].to} style={{borderRight:'20px solid #fff !important'}}>
-                    <Button size="small" onClick={handleClick} variant="contained" startIcon={props.actions[0].actions[0].icon} style={{backgroundColor:'rgb(153, 46, 98)'}}>
-                        <Typography variant="h7" style={{fontWeight:'bolder'}}>{props.actions[0].actions[0].name}</Typography>
-                    </Button>
-                </Link>
 
+                {props.actions[0].type === 'single'&&
+                    <Link to={props.actions[0].actions[0].to} style={{borderRight:'20px solid #fff !important'}}>
+                        <ButtonGroup variant="contained"
+                                     aria-label="split button"
+                                     style={{backgroundColor:'rgb(153, 46, 98)', height:'30px',width:'100%',borderColor:'#fff'}}
+                                     size="large"
+                        >
+                            <Button
+                                color="primary"
+                                size="small"
+                                aria-label="select merge strategy"
+                                aria-haspopup="menu"
+                                style={{backgroundColor:'rgb(153, 46, 98)',borderColor:'#fff'}}
+                            >
+                                {props.actions[0].actions[0].icon}
+                            </Button>
+                            <Button
+                                style={{backgroundColor:'rgb(153, 46, 98)',borderColor:'#fff'}}
+                            >
+                                <span style={{fontSize:'0.85em', color:'#fff', fontWeight:'bolder',borderColor:'#fff'}}>{props.actions[0].actions[0].name}</span>
+                            </Button>
+
+                        </ButtonGroup>
+                    </Link>
+                }
                 {props.actions[0].type === 'multiple'&&
                     <>
+                        <Link to={props.actions[0].actions[0].to} style={{borderRight:'20px solid #fff !important'}}>
+                            <Button size="small" onClick={handleClick} variant="contained" startIcon={props.actions[0].actions[0].icon} style={{backgroundColor:'rgb(153, 46, 98)'}}>
+                                <Typography variant="h7" style={{fontWeight:'bolder'}}>{props.actions[0].actions[0].name}</Typography>
+                            </Button>
+                        </Link>
                         <Divider orientation="vertical" flexItem style={{borderRight:'20px solid #fff !important', backgroundColor:'#fff',width:'1px', height:'26px',marginTop:'2px'}}>
                             1
                         </Divider>

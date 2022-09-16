@@ -18,7 +18,7 @@
                 facility_id        BIGINT,
                 body_weight        DOUBLE PRECISION,
                 diastolic          DOUBLE PRECISION,
-                encounter_date     date,
+                capture_date       TIMESTAMP WITHOUT TIME ZONE,
                 height             DOUBLE PRECISION,
                 temperature        DOUBLE PRECISION,
                 pulse              DOUBLE PRECISION,

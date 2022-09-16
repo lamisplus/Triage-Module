@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Entity
@@ -31,7 +32,7 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     private Double diastolic;
     @PastOrPresent
     @NotNull
-    private LocalDate encounterDate;
+    private LocalDateTime captureDate;
     @NotNull
     private Double height;
     private Double temperature;

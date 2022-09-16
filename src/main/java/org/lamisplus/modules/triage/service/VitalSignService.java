@@ -11,11 +11,14 @@ import org.lamisplus.modules.patient.domain.entity.Visit;
 import org.lamisplus.modules.patient.repository.PersonRepository;
 import org.lamisplus.modules.patient.repository.VisitRepository;
 import org.lamisplus.modules.triage.domain.dto.VitalSignDto;
+import org.lamisplus.modules.triage.domain.dto.VitalSignRequestDto;
 import org.lamisplus.modules.triage.domain.entity.VitalSign;
 import org.lamisplus.modules.triage.repository.VitalSignRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,8 +43,8 @@ public class VitalSignService {
     }
 
 
-    public VitalSignDto registerVitalSign(VitalSignDto vitalSignDto) {
-        log.info("I am in service {}", vitalSignDto.getEncounterDate());
+    public VitalSignDto registerVitalSign(VitalSignRequestDto vitalSignDto) {
+        log.info("I am in service {}", vitalSignDto.getCaptureDate());
         Long personId = vitalSignDto.getPersonId();
         Person existingPerson = getExistingPerson(personId);
         Long visitId = vitalSignDto.getVisitId();
@@ -50,7 +53,8 @@ public class VitalSignService {
             if (existVitalSignByVisitId.isPresent())
                 throw new RecordExistException(VitalSign.class, "id", "" + visitId);
         }
-        VitalSign vitalSign = convertVitalSignDtoToVitalSignEntity(vitalSignDto);
+
+        VitalSign vitalSign = convertVitalRequestSignDtoToVitalSignEntity(vitalSignDto);
         vitalSign.setUuid(UUID.randomUUID().toString());
         vitalSign.setArchived(0);
         vitalSign.setPerson(existingPerson);
@@ -76,8 +80,10 @@ public class VitalSignService {
     }
 
 
-    public VitalSignDto updateVitalSign(Long id, VitalSignDto vitalSignDto) {
+    public VitalSignDto updateVitalSign(Long id, VitalSignRequestDto vitalSignDto) {
         VitalSign existingVitalSign = getExistingVitalSign(id);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime visitStartDateTime = LocalDateTime.parse(vitalSignDto.getCaptureDate(), formatter);
         existingVitalSign.setBodyWeight(vitalSignDto.getBodyWeight());
         existingVitalSign.setDiastolic(vitalSignDto.getDiastolic());
         existingVitalSign.setSystolic(vitalSignDto.getSystolic());
@@ -85,7 +91,7 @@ public class VitalSignService {
         existingVitalSign.setPulse(vitalSignDto.getPulse());
         existingVitalSign.setTemperature(vitalSignDto.getTemperature());
         existingVitalSign.setRespiratoryRate(vitalSignDto.getRespiratoryRate());
-        existingVitalSign.setEncounterDate(vitalSignDto.getEncounterDate());
+        existingVitalSign.setCaptureDate(visitStartDateTime);
         VitalSign updateVitalSign = vitalSignRepository.save(existingVitalSign);
         return convertVitalSignEntityToVitalSignDto(updateVitalSign);
     }
@@ -129,6 +135,25 @@ public class VitalSignService {
         Visit visit = getVisit(vitalSignDto.getVisitId());
         userService.getUserWithRoles().ifPresent(user -> vitalSign.setFacilityId(user.getCurrentOrganisationUnitId()));
         log.info("vital sign {}", vitalSign);
+        vitalSign.setVisit(visit);
+        return vitalSign;
+    }
+    private VitalSign convertVitalRequestSignDtoToVitalSignEntity(VitalSignRequestDto vitalSignDto) {
+        VitalSign vitalSign = new VitalSign();
+        if(vitalSignDto.getCaptureDate() != null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime visitCaptureDateTime = LocalDateTime.parse(vitalSignDto.getCaptureDate(), formatter);
+            vitalSign.setCaptureDate(visitCaptureDateTime);
+        }else{
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String formatDateTime = now.format(formatter);
+            LocalDateTime visitCaptureDateTime = LocalDateTime.parse(formatDateTime, formatter);
+            vitalSign.setCaptureDate(visitCaptureDateTime);
+        }
+        BeanUtils.copyProperties(vitalSignDto, vitalSign);
+        Visit visit = getVisit(vitalSignDto.getVisitId());
+        userService.getUserWithRoles().ifPresent(user -> vitalSign.setFacilityId(user.getCurrentOrganisationUnitId()));
         vitalSign.setVisit(visit);
         return vitalSign;
     }

@@ -30,7 +30,7 @@ import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
 import moment from "moment";
 import SplitActionButton from '../../layouts/SplitActionButton'
-
+import _ from 'lodash';
 
 const tableIcons = {
 Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -129,7 +129,7 @@ const Patients = (props) => {
                 )
                 .then((response) => {
 
-                    setPatientList(response.data);
+                    setPatientList(_.uniqBy(response.data,'id'));
                 })
                 .catch((error) => {    
                 });        
@@ -156,13 +156,13 @@ const Patients = (props) => {
         return hospitalNumber ? hospitalNumber.value : '';
     };
 
-    console.log(patientList)
+
     function actionItems(row){
         return  [            {
             type:'single',
             actions:[
                 {
-                    name:'Dashboard',
+                    name:'Triage Dashboard',
                     type:'link',
                     icon:<MdPerson  size="22"/>,
                     to:{
@@ -194,23 +194,24 @@ const Patients = (props) => {
 
         
             <MaterialTable
-            icons={tableIcons}
-              title="Checked-In"
-              columns={[
+                icons={tableIcons}
+                title="Checked-In Patients"
+                columns={[
               // { title: " ID", field: "Id" },
-                {
-                  title: "Patient Name",
-                  field: "name",
-                },
-                { title: "Hospital Number", field: "hospital_number", filtering: false },
-                { title: "Sex", field: "sex", filtering: false },
-                { title: "Age", field: "age", filtering: false },
-                { title: "Actions", field: "actions", filtering: false }, 
-              ]}
-              data={ patientList.map((row) => ({
-
+                    {
+                      title: "Patient Name",
+                      field: "name",
+                    },
+                    { title: "Hospital Number", field: "hospital_number", filtering: false },
+                    { title: "Sex", field: "sex", filtering: false },
+                    { title: "Age", field: "age", filtering: false },
+                    { title: "Encounter Date", field: "encounterDate", filtering: false },
+                    { title: "Actions", field: "actions", filtering: false }
+                ]}
+                data={ patientList.map((row) => ({
                     name:row.firstName + " " + row.surname,
                     hospital_number: getHospitalNumber(row.identifier),
+                    encounterDate:moment(row.encounterDate).format("DD-MM-YYYY hh:mm A"),
                     sex:row.sex,
                     age: (row.dateOfBirth === 0 ||
                         row.dateOfBirth === undefined ||
@@ -218,54 +219,33 @@ const Patients = (props) => {
                         row.dateOfBirth === "" )
                           ? 0
                           : calculate_age(moment(row.dateOfBirth).format("DD-MM-YYYY")),
-
-                  actions:
+                    actions:
                       <div>
                           {permissions.includes('view_patient') || permissions.includes("all_permission") ? (
-                              <SplitActionButton actions={actionItems(row)} />
+                              <SplitActionButton actions={actionItems(row)}/>
                           ):""
                           }
-{/*
-                    <Menu>
-                        <MenuButton style={{ backgroundColor:"#3F51B5", color:"#fff", border:"2px solid #3F51B5", borderRadius:"4px", }}>
-                          Actions <span aria-hidden>▾</span>
-                        </MenuButton>
-                            <MenuList style={{ color:"#000000 !important"}} >
-                                
-                                <MenuItem style={{ color:"#000 !important"}}>
-                                    <Link
-                                        to={{
-                                            pathname: "/patient-dashboard",
-                                            state: { patientObj: row  }
-                                        }}>
-                                    <MdDashboard size="15" color="black" />{" "}<span style={{color: '#000'}}>Patient Dashboard</span>                   
-                                    </Link>
-                                </MenuItem>                                    
-    
-                          </MenuList>
-                    </Menu>*/}
-                  </div>
-                  
-                  }))}
+                      </div>
+                }))}
             
-                        options={{
-                            headerStyle: {
-                                backgroundColor: "#014d88",
-                                color: "#fff",
-                                fontSize:'16px',
-                                padding:'10px'
-                            },
-                          searchFieldStyle: {
-                              width : '200%',
-                              margingLeft: '250px',
-                          },
-                          filtering: false,
-                          exportButton: false,
-                          searchFieldAlignment: 'left',
-                          pageSizeOptions:[10,20,100],
-                          pageSize:10,
-                          debounceInterval: 400
-                      }}
+                options={{
+                    headerStyle: {
+                        backgroundColor: "#014d88",
+                        color: "#fff",
+                        fontSize:'16px',
+                        padding:'10px'
+                    },
+                  searchFieldStyle: {
+                      width : '200%',
+                      margingLeft: '250px',
+                  },
+                  filtering: false,
+                  exportButton: false,
+                  searchFieldAlignment: 'left',
+                  pageSizeOptions:[10,20,100],
+                  pageSize:10,
+                  debounceInterval: 400
+              }}
             />
            
         </CardBody>
