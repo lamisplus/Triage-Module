@@ -145,9 +145,9 @@ const Patients = (props) => {
                     age_now--;
                 }
             if (age_now === 0) {
-                    return m + " month(s)";
+                    return m > 1 ?m+" months":age_now+" month"  ;
                 }
-                return age_now + " year(s)";
+                return age_now > 1 ?age_now+" years":age_now+" year"  ;
         };
     
     const getHospitalNumber = (identifier) => {     

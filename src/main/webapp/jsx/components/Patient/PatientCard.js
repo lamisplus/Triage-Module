@@ -65,21 +65,20 @@ function PatientCard(props) {
 
     const calculate_age = dob => {
       var today = new Date();
-      var dateParts = dob.split("-");
-      var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+      var dateObject = new Date(dob);
       var birthDate = new Date(dateObject); // create a date object directlyfrom`dob1`argument
       var age_now = today.getFullYear() - birthDate.getFullYear();
       var m = today.getMonth() - birthDate.getMonth();
           if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                  age_now--;
-              }
+              age_now--;
+          }
           if (age_now === 0) {
-                  return m + " month(s)";
-              }
-              return age_now + " year(s)";
+              return m > 1 ?m+" months":age_now+" month"  ;
+          }
+          return  age_now > 1 ?age_now+" years":age_now+" year"  ;
     };
 
-  
+
   const CurrentStatus = ()=>{
 
         return (  <Label color="blue" size="mini">Active</Label>);
