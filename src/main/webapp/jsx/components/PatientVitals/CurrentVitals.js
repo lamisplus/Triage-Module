@@ -220,6 +220,9 @@ function CurrentVitals(props) {
                 console.log("response.data")
         })*/
     }
+    const numberOnly=(e, inputName)=>{
+        const result = e.target.value.replace(/[^0-9]/gi, '');
+    }
     return (
         <div className={classes.root}>
             <Card >
@@ -256,19 +259,22 @@ function CurrentVitals(props) {
                                             bmp
                                         </InputGroupText>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             name="pulse"
                                             id="pulse"
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.pulse}
                                             className={classes.input}
                                             required = {true}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/\D/g,'')
+                                            }}
                                         />
 
 
                                     </InputGroup>
-                                    {vital.pulse > 200 ? (
-                                        <span className={classes.error}>{"Body Weight cannot be greater than 200."}</span>
+                                    {vital.pulse > 120 ||vital.pulse < 40  ? (
+                                        <span className={classes.error}>{"Pulse must not be greater than 120 and less than 40"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -288,12 +294,15 @@ function CurrentVitals(props) {
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.respiratoryRate}
                                             className={classes.input}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/\D/g,'')
+                                            }}
                                         />
 
 
                                     </InputGroup>
-                                    {vital.respiratoryRate > 200 ? (
-                                        <span className={classes.error}>{"Body Weight cannot be greater than 200."}</span>
+                                    {vital.respiratoryRate > 70 ||  vital.respiratoryRate < 10 ? (
+                                        <span className={classes.error}>{"Respiratory Rate must not be greater than 70 and less than 10"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -306,18 +315,21 @@ function CurrentVitals(props) {
                                             <sup>o</sup>C
                                         </InputGroupText>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             name="temperature"
                                             id="temperature"
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.temperature}
                                             className={classes.input}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/\D/g,'');
+                                            }}
                                         />
 
 
                                     </InputGroup>
-                                    {vital.temperature > 200 ? (
-                                        <span className={classes.error}>{"Body Weight cannot be greater than 200."}</span>
+                                    {vital.temperature > 47 || vital.temperature < 35 ? (
+                                        <span className={classes.error}>{"Temperature must not be greater than 47 and less than 35"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -332,12 +344,15 @@ function CurrentVitals(props) {
                                                 systolic(mmHg)
                                             </InputGroupText >
                                             <Input
-                                                type="number"
+                                                type="text"
                                                 name="systolic"
                                                 id="systolic"
                                                 onChange={handleInputChangeVitalSignDto}
                                                 value={vital.systolic}
                                                 className={classes.input}
+                                                onInput={(e) => {
+                                                    e.target.value = e.target.value.replace(/\D/g,'')
+                                                }}
                                             />
                                             {vital.systolic > 200 ? (
                                                 <span className={classes.error}>{"systolic cannot be greater than 200"}</span>
@@ -358,6 +373,9 @@ function CurrentVitals(props) {
                                                 value={vital.diastolic}
                                                 className={classes.input}
                                                 style={{border:'2px solid #992E62'}}
+                                                onInput={(e) => {
+                                                    e.target.value = e.target.value.replace(/\D/g,'')
+                                                }}
                                             />
                                             {vital.diastolic > 200 ? (
                                                 <span className={classes.error}>{"diastolic cannot be greater than 200"}</span>
@@ -402,12 +420,15 @@ function CurrentVitals(props) {
                                             kg
                                         </InputGroupText>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             name="bodyWeight"
                                             id="bodyWeight"
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.bodyWeight}
                                             className={classes.input}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/\D/g,'')
+                                            }}
                                             />
 
 
@@ -426,12 +447,16 @@ function CurrentVitals(props) {
                                             cm
                                         </InputGroupText>
                                         <Input
-                                            type="number"
+                                            type="text"
                                             name="height"
                                             id="height"
                                             onChange={handleInputChangeVitalSignDto}
                                             value={vital.height}
                                             className={classes.input}
+                                            onInput={(e) => {
+                                                e.target.value = e.target.value.replace(/\D/g,'')
+                                            }}
+
                                         />
                                         <InputGroupText className={classes.inputGroupText} style={{backgroundColor:'#992E62',color:'#fff'}}>
                                             {vital.height/100} M
@@ -446,7 +471,7 @@ function CurrentVitals(props) {
 
                             <div className="form-group mb-3 col-md-2">
                                 <div style={{marginTop:'5px',display:'flex',alignContent:'flex-start',alignItems:'center', height:'100%', backgroundColor:'#fff',color:'#014d88 ',fontSize:'16px',padding:'15px',fontWeight:'bold'}}>
-                                    <h3 style={{color:'#014d88',fontSize:'1.2rem'}}>BMI - <span style={{color:'#992E62'}}>{bmi}</span> </h3>
+                                    <h3 style={{color:'#014d88',fontSize:'1.2rem'}}>BMI : <span style={{color:'#992E62'}}>{bmi}</span> </h3>
                                 </div>
                             </div>
 
