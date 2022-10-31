@@ -162,7 +162,7 @@ const Patients = (props) => {
                   field: "name",
                 },
                 { title: "Hospital Number", field: "hospital_number", filtering: false },
-                { title: "Gender", field: "gender", filtering: false },
+                { title: "Sex", field: "sex", filtering: false },
                 { title: "Age", field: "age", filtering: false },
                 //{ title: "Enrollment Status", field: "v_status", filtering: false },
                 //{ title: "ART Number", field: "v_status", filtering: false },

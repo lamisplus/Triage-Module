@@ -30,8 +30,11 @@ const Home = () => {
                     className="mb-3"
                     >
                    
-                    <Tab eventKey="home" title="CheckedIn Patients">                   
+                    <Tab eventKey="home" title="Checked-In Patients">
                       <CheckedInPatientList />
+                    </Tab>
+                    <Tab eventKey="find-patient" title="Checked-Out Patients">
+                        <CheckedInPatientList />
                     </Tab>
                     
                     </Tabs>

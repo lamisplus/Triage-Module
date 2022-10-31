@@ -3,6 +3,7 @@ package org.lamisplus.modules.triage.domain.entity;
 import lombok.*;
 import org.lamisplus.modules.patient.domain.entity.PatientAuditEntity;
 import org.lamisplus.modules.patient.domain.entity.Person;
+import org.lamisplus.modules.patient.domain.entity.Visit;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Entity
@@ -30,7 +32,7 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     private Double diastolic;
     @PastOrPresent
     @NotNull
-    private LocalDate encounterDate;
+    private LocalDateTime captureDate;
     @NotNull
     private Double height;
     private Double temperature;
@@ -39,7 +41,11 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_uuid", nullable = false, referencedColumnName = "uuid")
     private Person person;
-    private Long visitId;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "visit_id", nullable = false, referencedColumnName = "uuid")
+    private Visit visit;
+
     @NotNull
     private Double systolic;
 
