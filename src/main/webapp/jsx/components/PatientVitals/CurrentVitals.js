@@ -273,8 +273,8 @@ function CurrentVitals(props) {
 
 
                                     </InputGroup>
-                                    {vital.pulse > 120 ||vital.pulse < 40  ? (
-                                        <span className={classes.error}>{"Pulse must not be greater than 120 and less than 40"}</span>
+                                    {vital.pulse > 150 ||vital.pulse < 40  ? (
+                                        <span className={classes.error}>{"Pulse must not be greater than 150 and less than 40"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -301,8 +301,8 @@ function CurrentVitals(props) {
 
 
                                     </InputGroup>
-                                    {vital.respiratoryRate > 70 ||  vital.respiratoryRate < 10 ? (
-                                        <span className={classes.error}>{"Respiratory Rate must not be greater than 70 and less than 10"}</span>
+                                    {vital.respiratoryRate > 40 ||  vital.respiratoryRate < 10 ? (
+                                        <span className={classes.error}>{"Respiratory Rate must not be greater than 40 and less than 10"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -357,8 +357,8 @@ function CurrentVitals(props) {
                                             {vital.systolic > 200 ? (
                                                 <span className={classes.error}>{"systolic cannot be greater than 200"}</span>
                                             ) : "" }
-                                            {vital.systolic < 90 ? (
-                                                <span className={classes.error}>{"systolic cannot be less than 90"}</span>
+                                            {vital.systolic < 60 ? (
+                                                <span className={classes.error}>{"systolic cannot be less than 60"}</span>
                                             ) : "" }
                                         </div>
                                         <div style={{width:'35%'}}>
@@ -380,8 +380,8 @@ function CurrentVitals(props) {
                                             {vital.diastolic > 200 ? (
                                                 <span className={classes.error}>{"diastolic cannot be greater than 200"}</span>
                                             ) : "" }
-                                            { vital.diastolic < 90  ? (
-                                                <span className={classes.error}>{"diastolic cannot be less than 90"}</span>
+                                            { vital.diastolic < 60  ? (
+                                                <span className={classes.error}>{"diastolic cannot be less than 60"}</span>
                                             ) : "" }
                                         </div>
 
