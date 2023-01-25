@@ -162,7 +162,7 @@ const Patients = (props) => {
             type:'single',
             actions:[
                 {
-                    name:'Triage Dashboard',
+                    name:'Vitals',
                     type:'link',
                     icon:<MdPerson  size="22"/>,
                     to:{
