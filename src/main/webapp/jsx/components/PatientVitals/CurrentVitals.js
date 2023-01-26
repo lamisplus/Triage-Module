@@ -72,8 +72,6 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-
-
 function CurrentVitals(props) {
     const patientObj = props.patientObj;
     const [permissions, setPermissions] = useState([]);
@@ -88,9 +86,6 @@ function CurrentVitals(props) {
     const [visitStartDate, setVisitStartDate] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
     const [currentVitalId, setCurrentVitalId]=useState(null);
     const [today, setToday] = useState(moment().format('YYYY-MM-DDTHH:mm'));
-
-
-
 
     const [vital, setVitalSignDto]= useState({
         bodyWeight: "",
