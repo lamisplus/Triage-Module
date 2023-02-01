@@ -120,29 +120,44 @@ function CurrentVitals(props) {
         return Object.values(temp).every(x => x == "")
     }
 
+    async function patientsVitalsSigns() {
+        axios
+            .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
+            { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                props.setPatientList(response.data);
+            })
+            .catch((error) => {
+            });
+    }
+
     /**** Submit Button Processing  */
     const handleSubmit = (e) => {
         e.preventDefault();
         //If visit has a vital sign update else create new
         if(visitVitalStatus){
             setSaving(true);
+
             vital.captureDate =  moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format('yyyy-MM-DD HH:mm');
+
             axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vital,
                 { headers: {"Authorization" : `Bearer ${token}`}},
 
             ).then(response => {
                     setSaving(false);
                     props.patientObj.commenced=true
-                    toast.success("Vital signs update successful");
+                    toast.success("Vital signs updated successfully");
+                    console.log("done")
                     //props.toggle()
                     //props.patientsVitalsSigns()
+                    patientsVitalsSigns()
+                    props.setKey("vitals-history")
 
                 })
                 .catch(error => {
                     setSaving(false);
                     toast.error("Something went wrong");
-
-
                 });
         }else{
             setSaving(true);
@@ -154,10 +169,13 @@ function CurrentVitals(props) {
                 .then(response => {
                     setSaving(false);
                     props.patientObj.commenced=true
-                    toast.success("Vital signs save successful");
+                    toast.success("Vital signs saved successful");
                     //props.toggle()
                    // props.patientsVitalsSigns()
+
                     props.setVisitVitalExists(true);
+                    patientsVitalsSigns()
+                    props.setKey("vitals-history")
                 })
                 .catch(error => {
                     setSaving(false);
@@ -183,7 +201,7 @@ function CurrentVitals(props) {
     }
 
     useEffect(() => {
-
+        patientsVitalsSigns()
         getLatestVitals()
     }, []);
     ///GET LIST OF Patients

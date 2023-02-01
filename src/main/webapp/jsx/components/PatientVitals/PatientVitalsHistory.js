@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MaterialTable from 'material-table';
 import axios from "axios";
 import { url as baseUrl, token } from "../../../../../api";
+import Swal from "sweetalert2";
 
 import { forwardRef } from 'react';
 import 'semantic-ui-css/semantic.min.css';
@@ -25,7 +26,7 @@ import {  Card,CardBody,} from 'reactstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { makeStyles } from '@material-ui/core/styles'
 
-import {MdDashboard, MdPerson,MdRemoveRedEye} from "react-icons/md";
+import {MdDashboard, MdPerson,MdRemoveRedEye, MdDelete, MdEditNote} from "react-icons/md";
 import {Menu,MenuList,MenuButton,MenuItem,} from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
@@ -102,58 +103,87 @@ const useStyles = makeStyles(theme => ({
 
 const Patients = (props) => {
     
-    const [patientList, setPatientList] = useState([])
+    //const [patientList, setPatientList] = useState([])
     const [patientObj, setpatientObj] = useState(props.patientObj)
     const [modal, setModal] = useState(false);
     const [permissions, setPermissions] = useState([]);
     const toggle = () => setModal(!modal);
 
-
     useEffect(() => {
         userPermission();
         patientsVitalsSigns();
       }, []);
-        const userPermission =()=>{
+
+    const userPermission =()=>{
+        axios
+            .get(`${baseUrl}account`,
+                { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                setPermissions(response.data.permissions);
+            })
+            .catch((error) => {
+            });
+
+    }
+    ///GET LIST OF Patients
+    async function patientsVitalsSigns() {
+        axios
+            .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
+            { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                props.setPatientList(response.data);
+            })
+            .catch((error) => {
+            });
+    }
+    const AddVitalsSigns =(row)=> {
+        setpatientObj({...patientObj, ...row});
+        setModal(!modal)
+    }
+
+     const handleDelete = (id) => {
+            //console.log("delete", id)
             axios
-                .get(`${baseUrl}account`,
+                .delete(`${baseUrl}patient/vital-sign/${id}`,
                     { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
-                    setPermissions(response.data.permissions);
-
+                    patientsVitalsSigns();
+                    Swal.fire({
+                          icon: 'success',
+                          text: 'Vital Sign Deleted Successfully',
+                          timer: 1500
+                     });
                 })
                 .catch((error) => {
+                     Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'An error occurred while deleting!!!',
+                    });
                 });
+        }
 
-        }
-        ///GET LIST OF Patients
-        async function patientsVitalsSigns() {
-            axios
-                .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
-                { headers: {"Authorization" : `Bearer ${token}`} }
-                )
-                .then((response) => {
-                    setPatientList(response.data);
-                })
-                .catch((error) => {
-                });        
-        }
-        const AddVitalsSigns =(row)=> {
-            setpatientObj({...patientObj, ...row});
-            setModal(!modal)
-        }
+     const edit = () => {
+        //console.log("edit item")
+        props.setKey("current-Vitals")
+     }
 
     function actionItems(row){
         return  [            {
             type:'single',
             actions:[
                 {
-                    name:'View/update',
+                    name:'Delete',
                     type:'link',
-                    icon:<MdRemoveRedEye  size="22"/>,
+                    icon:<MdEditNote size="22"/>,
+                    editAction: () => {edit()},
+                    deleteAction: () => {handleDelete(row.id)},
                     to:{
-                        pathname: "#",
-                        state: { patientObj: row , permissions:permissions  }
+                        pathname: "",
+                        state: {}
                     }
                 }
             ]
@@ -183,7 +213,6 @@ const Patients = (props) => {
                   { title: "Height(cm)", field: "Height", filtering: false },
                   { title: "Weight(kg)", field: "Weight", filtering: false },
                   { title: "BMI", field: "BMI", filtering: false },
-/*                  { title: "Status", field: "BMI", filtering: false },
                   {
                       title: "Action",
                       field: "actions",
@@ -192,25 +221,25 @@ const Patients = (props) => {
                           border:'2px solid #fff',
                           paddingRight:'30px'
                       }
-                  },*/
+                  },
               ]}
-              data={ patientList.map((row) => ({
+              data={ props.patientList.map((row) => ({
                   //Id: manager.id,
                   date:moment(row.captureDate).format("YYYY-MM-DD h:mm a"),
                   pulse:row.pulse,
                   respiratoryRate:row.respiratoryRate, 
                   temperature:<p>{row.temperature}&#8451;</p>,
-                  bloodPresure:row.systolic + " /"+ row.diastolic,
+                  bloodPresure: row.systolic + " /" + row.diastolic,
                   Height:row.height+' cm',
                   Weight:row.bodyWeight+' kg',
                   BMI: Math.round(row.bodyWeight/Math.pow((row.height/100),2)),
-/*                  actions:
+                  actions:
                       <div>
                           {permissions.includes('edit_vitals') || permissions.includes("all_permission") ? (
                               <SplitActionButton actions={actionItems(row)} />
                           ):""
                           }
-                      </div>*/
+                      </div>
                   }))}
             
                         options={{
