@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MaterialTable from 'material-table';
 import axios from "axios";
 import { url as baseUrl, token } from "../../../../../api";
+import Swal from "sweetalert2";
 
 import { forwardRef } from 'react';
 import 'semantic-ui-css/semantic.min.css';
@@ -25,7 +26,7 @@ import {  Card,CardBody,} from 'reactstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { makeStyles } from '@material-ui/core/styles'
 
-import { MdDashboard } from "react-icons/md";
+import {MdDashboard, MdPerson,MdRemoveRedEye, MdDelete, MdEditNote} from "react-icons/md";
 import {Menu,MenuList,MenuButton,MenuItem,} from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
@@ -33,6 +34,7 @@ import Moment from "moment";
 import moment from "moment";
 import ButtonMui from "@material-ui/core/Button";
 import AddVitals from './AddVitals'
+import SplitActionButton from "../../layouts/SplitActionButton";
 
 
 const tableIcons = {
@@ -101,91 +103,150 @@ const useStyles = makeStyles(theme => ({
 
 const Patients = (props) => {
     
-    const [patientList, setPatientList] = useState([])
+    //const [patientList, setPatientList] = useState([])
     const [patientObj, setpatientObj] = useState(props.patientObj)
     const [modal, setModal] = useState(false);
+    const [permissions, setPermissions] = useState([]);
     const toggle = () => setModal(!modal);
 
     useEffect(() => {
-        patientsVitalsSigns()
+        userPermission();
+        patientsVitalsSigns();
       }, []);
-        ///GET LIST OF Patients
-        async function patientsVitalsSigns() {
-            axios
-                .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
+
+    const userPermission =()=>{
+        axios
+            .get(`${baseUrl}account`,
                 { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                setPermissions(response.data.permissions);
+            })
+            .catch((error) => {
+            });
+
+    }
+    ///GET LIST OF Patients
+    async function patientsVitalsSigns() {
+        axios
+            .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
+            { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                props.setPatientList(response.data);
+            })
+            .catch((error) => {
+            });
+    }
+    const AddVitalsSigns =(row)=> {
+        setpatientObj({...patientObj, ...row});
+        setModal(!modal)
+    }
+
+     const handleDelete = (id) => {
+            //console.log("delete", id)
+            axios
+                .delete(`${baseUrl}patient/vital-sign/${id}`,
+                    { headers: {"Authorization" : `Bearer ${token}`} }
                 )
                 .then((response) => {
-                    setPatientList(response.data);
+                    patientsVitalsSigns();
+                    Swal.fire({
+                          icon: 'success',
+                          text: 'Vital Sign Deleted Successfully',
+                          timer: 1500
+                     });
                 })
-                .catch((error) => {    
-                });        
-        }
-        const AddVitalsSigns =(row)=> {
-            setpatientObj({...patientObj, ...row});
-            setModal(!modal)
+                .catch((error) => {
+                     Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'An error occurred while deleting!!!',
+                    });
+                });
         }
 
+     const edit = () => {
+        //console.log("edit item")
+        props.setKey("current-Vitals")
+     }
 
+    function actionItems(row){
+        return  [            {
+            type:'single',
+            actions:[
+                {
+                    name:'Delete',
+                    type:'link',
+                    icon:<MdEditNote size="22"/>,
+                    editAction: () => {edit()},
+                    deleteAction: () => {handleDelete(row.id)},
+                    to:{
+                        pathname: "",
+                        state: {}
+                    }
+                }
+            ]
+        }
+        ]
+    }
   return (
     <div>
-        <br/><br/>
-            <Link to={"/"} >
-            <ButtonMui
-                variant="contained"
-                color="primary"
-                className=" float-end ms-2"
 
-            >
-                <span style={{ textTransform: "capitalize" }}>Back</span>
-            </ButtonMui>
-            
-          </Link>
-          <ButtonMui
-                variant="contained"
-                color="primary"
-                className=" float-end ms-2"
-                onClick={() => AddVitalsSigns(patientObj)}
-            >
-                <span style={{ textTransform: "capitalize" }}>Add Vitals</span>
-            </ButtonMui>       
-          <br/><br/>
-
-      
             <MaterialTable
             icons={tableIcons}
-              title="Patient Vitals Signs"
+              title=""
               columns={[
-              // { title: " ID", field: "Id" },
-                {
-                  title: "Ecounter Date",
-                  field: "date",
-                },
-                { title: "Pulse", field: "pulse", filtering: false },
-                { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
-                { title: "Blood Presure", field: "bloodPresure", filtering: false },
-                { title: "Temperature", field: "temperature", filtering: false },
-                { title: "Height", field: "Height", filtering: false },
-                { title: "Weight", field: "Weight", filtering: false },
-               
-              
+                  {
+                      title: "Capture Date",
+                      field: "date",
+                        headerStyle: {
+                            backgroundColor: "#039be5",
+                            border:'2px solid #fff',
+                            paddingRight:'30px'
+                        }
+                  },
+                  { title: "Pulse", field: "pulse", filtering: false },
+                  { title: "Respiratory Rate", field: "respiratoryRate", filtering: false },
+                  { title: "Blood Presure", field: "bloodPresure", filtering: false },
+                  { title: <p>Temperature &#8451;</p>, field: "temperature", filtering: false },
+                  { title: "Height(cm)", field: "Height", filtering: false },
+                  { title: "Weight(kg)", field: "Weight", filtering: false },
+                  { title: "BMI", field: "BMI", filtering: false },
+                  {
+                      title: "Action",
+                      field: "actions",
+                      headerStyle: {
+                          backgroundColor: "#992E62",
+                          border:'2px solid #fff',
+                          paddingRight:'30px'
+                      }
+                  },
               ]}
-              data={ patientList.map((row) => ({
+              data={ props.patientList.map((row) => ({
                   //Id: manager.id,
-                  date:row.encounterDate,
+                  date:moment(row.captureDate).format("YYYY-MM-DD h:mm a"),
                   pulse:row.pulse,
                   respiratoryRate:row.respiratoryRate, 
-                  temperature:row.temperature,
-                  bloodPresure:row.systolic + " /"+ row.diastolic,
-                  Height:row.height,
-                  Weight:row.bodyWeight,  
-                 
+                  temperature:<p>{row.temperature}&#8451;</p>,
+                  bloodPresure: row.systolic + " /" + row.diastolic,
+                  Height:row.height+' cm',
+                  Weight:row.bodyWeight+' kg',
+                  BMI: Math.round(row.bodyWeight/Math.pow((row.height/100),2)),
+                  actions:
+                      <div>
+                          {permissions.includes('edit_vitals') || permissions.includes("all_permission") ? (
+                              <SplitActionButton actions={actionItems(row)} />
+                          ):""
+                          }
+                      </div>
                   }))}
             
                         options={{
                           headerStyle: {
-                              //backgroundColor: "#9F9FA5",
-                              color: "#000",
+                              backgroundColor: "#014d88",
+                              color: "#fff",
+                              fontSize:'14px',
                           },
                           searchFieldStyle: {
                               width : '200%',

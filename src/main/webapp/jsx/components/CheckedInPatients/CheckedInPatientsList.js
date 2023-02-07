@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import MaterialTable from 'material-table';
 import axios from "axios";
 import { url as baseUrl, token } from "./../../../../../api";
-
+import {FaEye, FaUserPlus} from "react-icons/fa";
+import { MdDashboard, MdDeleteForever, MdModeEdit,MdPerson} from "react-icons/md";
 import { forwardRef } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { Link } from 'react-router-dom'
@@ -24,13 +25,12 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import {  Card,CardBody,} from 'reactstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { makeStyles } from '@material-ui/core/styles'
-import { MdDashboard } from "react-icons/md";
 import {Menu,MenuList,MenuButton,MenuItem,} from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
 import { Label } from 'semantic-ui-react'
 import moment from "moment";
-
-
+import SplitActionButton from '../../layouts/SplitActionButton'
+import _ from 'lodash';
 
 const tableIcons = {
 Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -100,7 +100,24 @@ const Patients = (props) => {
     
     const [patientList, setPatientList] = useState([])
     const [patientObj, setpatientObj] = useState([])
+    const [permissions, setPermissions] = useState([]);
+    useEffect(() => {
+        userPermission();
+    }, []);
+    //Get list of Finger index
+    const userPermission =()=>{
+        axios
+            .get(`${baseUrl}account`,
+                { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                setPermissions(response.data.permissions);
 
+            })
+            .catch((error) => {
+            });
+
+    }
     useEffect(() => {
         patients()
       }, []);
@@ -112,7 +129,7 @@ const Patients = (props) => {
                 )
                 .then((response) => {
 
-                    setPatientList(response.data);
+                    setPatientList(_.uniqBy(response.data,'id'));
                 })
                 .catch((error) => {    
                 });        
@@ -128,9 +145,9 @@ const Patients = (props) => {
                     age_now--;
                 }
             if (age_now === 0) {
-                    return m + " month(s)";
+                    return m > 1 ?m+" months":age_now+" month"  ;
                 }
-                return age_now + " year(s)";
+                return age_now > 1 ?age_now+" years":age_now+" year"  ;
         };
     
     const getHospitalNumber = (identifier) => {     
@@ -139,7 +156,37 @@ const Patients = (props) => {
         return hospitalNumber ? hospitalNumber.value : '';
     };
 
-    console.log(patientList)
+
+    function actionItems(row){
+        return  [            {
+            type:'single',
+            actions:[
+                {
+                    name:'Vitals',
+                    type:'link',
+                    icon:<MdPerson  size="22"/>,
+                    to:{
+                        pathname: "/patient-dashboard",
+                        state: { patientObj: row , permissions:permissions  }
+                    }
+                },
+/*                {...(permissions.includes('view_patient') || permissions.includes("all_permission")&&
+                        {
+                            name:'Patient Dashboard',
+                            type:'link',
+                            icon:<MdPerson size="20" color='rgb(1, 77, 136)' />,
+                            to:{
+                                pathname: "/patient-dashboard",
+                                state: { patientObj: row , permissions:permissions  }
+                            }
+                        }
+                    )},*/
+            ]
+        }
+        ]
+    }
+
+
   return (
     <div>
        <Card>
@@ -147,72 +194,58 @@ const Patients = (props) => {
 
         
             <MaterialTable
-            icons={tableIcons}
-              title="Find Patient "
-              columns={[
+                icons={tableIcons}
+                title="Checked-In Patients"
+                columns={[
               // { title: " ID", field: "Id" },
-                {
-                  title: "Patient Name",
-                  field: "name",
-                },
-                { title: "Hospital Number", field: "hospital_number", filtering: false },
-                { title: "Gender", field: "gender", filtering: false },
-                { title: "Age", field: "age", filtering: false },
-                { title: "Actions", field: "actions", filtering: false }, 
-              ]}
-              data={ patientList.map((row) => ({
-
+                    {
+                      title: "Patient Name",
+                      field: "name",
+                    },
+                    { title: "Hospital Number", field: "hospital_number", filtering: false },
+                    { title: "Sex", field: "sex", filtering: false },
+                    { title: "Age", field: "age", filtering: false },
+                    { title: "Encounter Date", field: "encounterDate", filtering: false },
+                    { title: "Actions", field: "actions", filtering: false }
+                ]}
+                data={ patientList.map((row) => ({
                     name:row.firstName + " " + row.surname,
                     hospital_number: getHospitalNumber(row.identifier),
-                    gender:row.gender.display,
+                    encounterDate:moment(row.encounterDate).format("DD-MM-YYYY hh:mm A"),
+                    sex:row.sex,
                     age: (row.dateOfBirth === 0 ||
                         row.dateOfBirth === undefined ||
                         row.dateOfBirth === null ||
                         row.dateOfBirth === "" )
                           ? 0
                           : calculate_age(moment(row.dateOfBirth).format("DD-MM-YYYY")),
-                 
                     actions:
+                      <div>
+                          {permissions.includes('view_patient') || permissions.includes("all_permission") ? (
+                              <SplitActionButton actions={actionItems(row)}/>
+                          ):""
+                          }
+                      </div>
+                }))}
             
-                    <div>
-                    <Menu>
-                        <MenuButton style={{ backgroundColor:"#3F51B5", color:"#fff", border:"2px solid #3F51B5", borderRadius:"4px", }}>
-                          Actions <span aria-hidden>▾</span>
-                        </MenuButton>
-                            <MenuList style={{ color:"#000000 !important"}} >
-                                
-                                <MenuItem style={{ color:"#000 !important"}}>
-                                    <Link
-                                        to={{
-                                            pathname: "/patient-dashboard",
-                                            state: { patientObj: row  }
-                                        }}>
-                                    <MdDashboard size="15" color="black" />{" "}<span style={{color: '#000'}}>Patient Dashboard</span>                   
-                                    </Link>
-                                </MenuItem>                                    
-    
-                          </MenuList>
-                    </Menu>
-                  </div>
-                  
-                  }))}
-            
-                        options={{
-                          headerStyle: {
-                              //backgroundColor: "#9F9FA5",
-                              color: "#000",
-                          },
-                          searchFieldStyle: {
-                              width : '200%',
-                              margingLeft: '250px',
-                          },
-                          filtering: false,
-                          exportButton: false,
-                          searchFieldAlignment: 'left',
-                          pageSizeOptions:[10,20,100],
-                          pageSize:10,
-                          debounceInterval: 400
-                      }}
+                options={{
+                    headerStyle: {
+                        backgroundColor: "#014d88",
+                        color: "#fff",
+                        fontSize:'16px',
+                        padding:'10px'
+                    },
+                  searchFieldStyle: {
+                      width : '200%',
+                      margingLeft: '250px',
+                  },
+                  filtering: false,
+                  exportButton: false,
+                  searchFieldAlignment: 'left',
+                  pageSizeOptions:[10,20,100],
+                  pageSize:10,
+                  debounceInterval: 400
+              }}
             />
            
         </CardBody>

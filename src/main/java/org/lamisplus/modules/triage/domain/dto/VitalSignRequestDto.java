@@ -14,22 +14,17 @@ import javax.validation.constraints.PastOrPresent;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VitalSignDto implements Serializable {
+public class VitalSignRequestDto implements Serializable{
     private Long id;
     private Double bodyWeight;
     private Double diastolic;
-    @PastOrPresent
-    @NotNull
-    @Convert(converter = LocalDateConverter.class)
-    private LocalDateTime captureDate;
+    private String captureDate;
     private Double height;
     private Long personId;
-
     private Long visitId;
     private Double systolic;
 
@@ -40,6 +35,6 @@ public class VitalSignDto implements Serializable {
     private Double pulse;
     private Double respiratoryRate;
     private Integer archived;
+    @NotNull
     private Long facilityId;
-    private LocalDate visitStartDate;
 }

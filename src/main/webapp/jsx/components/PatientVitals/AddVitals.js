@@ -58,19 +58,18 @@ const useStyles = makeStyles(theme => ({
 
 const AddVitals = (props) => {
     const patientObj = props.patientObj;
-    console.log(patientObj)
+    //console.log(patientObj)
     let history = useHistory();
     const classes = useStyles()
     //const [values, setValues] = useState([]);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
-
+    const [today, setToday] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
     const [vital, setVitalSignDto]= useState({
 
                                                 bodyWeight: "",
                                                 diastolic: "",
                                                 encounterDate: "",
-                                                facilityId: 1,
                                                 height: "",
                                                 personId: props.patientObj.id,
                                                 pulse: "",
@@ -84,7 +83,7 @@ const AddVitals = (props) => {
             setVitalSignDto ({...vital,  [e.target.name]: e.target.value});
         }
 
-        console.log(vital)
+        //console.log(vital)
         //FORM VALIDATION
         const validate = () => {
             let temp = { ...errors }
@@ -141,14 +140,15 @@ const AddVitals = (props) => {
                                 
                                 <div className="form-group mb-3 col-md-6">
                                         <FormGroup>
-                                        <Label >Date Of Vital Signs</Label>
+                                        <Label >Date Of Vital Signsss</Label>
                                         <InputGroup> 
                                             <Input 
                                                 type="date"
                                                 name="encounterDate"
                                                 id="encounterDate"
                                                 onChange={handleInputChangeVitalSignDto}
-                                                value={vital.encounterDate} 
+                                                value={vital.encounterDate}
+                                                max={today}
                                             />
 
                                         </InputGroup>
