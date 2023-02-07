@@ -35,7 +35,6 @@ function PatientDashboardBody(props) {
                                         <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}
                                         setKey={setKey} setPatientList={setPatientList}/>
                                     </Tab>
-
                                     {/*<Tab eventKey="vitals-charts" title="Charts">
                                         <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}/>
                                     </Tab>*/}
