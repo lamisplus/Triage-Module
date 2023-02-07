@@ -20,18 +20,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VitalSignRequestDto implements Serializable{
     private Long id;
-    @NotNull
     private Double bodyWeight;
-    @NotNull
     private Double diastolic;
     private String captureDate;
-    @NotNull
     private Double height;
-    @NotNull
     private Long personId;
-
     private Long visitId;
-    @NotNull
     private Double systolic;
 
     @NotNull

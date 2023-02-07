@@ -11,6 +11,7 @@ const divStyle = {
 function PatientDashboardBody(props) {
     const [key, setKey] = useState('vitals-history');
     const [patientObj, setpatientObj] = useState(props.patientObj)
+    const [patientList, setPatientList] = useState([])
     return (
         <Fragment>
             <Row>
@@ -27,15 +28,16 @@ function PatientDashboardBody(props) {
                                     className="mb-3"
                                 >
                                     <Tab eventKey="vitals-history" title="History">
-                                        <PatientVitalsHistory patientObj={patientObj}  />
+                                        <PatientVitalsHistory patientObj={patientObj} patientList={patientList}
+                                        setPatientList={setPatientList} setKey={setKey}/>
                                     </Tab>
                                     <Tab eventKey="current-Vitals" title="Capture Vitals">
-                                        <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}/>
+                                        <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}
+                                        setKey={setKey} setPatientList={setPatientList}/>
                                     </Tab>
-
-                                    <Tab eventKey="vitals-charts" title="Charts">
+                                    {/*<Tab eventKey="vitals-charts" title="Charts">
                                         <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}/>
-                                    </Tab>
+                                    </Tab>*/}
                                 </Tabs>
 
 

@@ -72,8 +72,6 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-
-
 function CurrentVitals(props) {
     const patientObj = props.patientObj;
     const [permissions, setPermissions] = useState([]);
@@ -88,9 +86,6 @@ function CurrentVitals(props) {
     const [visitStartDate, setVisitStartDate] = useState(new Date().toISOString().substr(0, 10).replace('T', ' '));
     const [currentVitalId, setCurrentVitalId]=useState(null);
     const [today, setToday] = useState(moment().format('YYYY-MM-DDTHH:mm'));
-
-
-
 
     const [vital, setVitalSignDto]= useState({
         bodyWeight: "",
@@ -125,29 +120,44 @@ function CurrentVitals(props) {
         return Object.values(temp).every(x => x == "")
     }
 
+    async function patientsVitalsSigns() {
+        axios
+            .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`,
+            { headers: {"Authorization" : `Bearer ${token}`} }
+            )
+            .then((response) => {
+                props.setPatientList(response.data);
+            })
+            .catch((error) => {
+            });
+    }
+
     /**** Submit Button Processing  */
     const handleSubmit = (e) => {
         e.preventDefault();
         //If visit has a vital sign update else create new
         if(visitVitalStatus){
             setSaving(true);
+
             vital.captureDate =  moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format('yyyy-MM-DD HH:mm');
+
             axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vital,
                 { headers: {"Authorization" : `Bearer ${token}`}},
 
             ).then(response => {
                     setSaving(false);
                     props.patientObj.commenced=true
-                    toast.success("Vital signs update successful");
+                    toast.success("Vital signs updated successfully");
+                    console.log("done")
                     //props.toggle()
                     //props.patientsVitalsSigns()
+                    patientsVitalsSigns()
+                    props.setKey("vitals-history")
 
                 })
                 .catch(error => {
                     setSaving(false);
                     toast.error("Something went wrong");
-
-
                 });
         }else{
             setSaving(true);
@@ -159,10 +169,13 @@ function CurrentVitals(props) {
                 .then(response => {
                     setSaving(false);
                     props.patientObj.commenced=true
-                    toast.success("Vital signs save successful");
+                    toast.success("Vital signs saved successful");
                     //props.toggle()
                    // props.patientsVitalsSigns()
+
                     props.setVisitVitalExists(true);
+                    patientsVitalsSigns()
+                    props.setKey("vitals-history")
                 })
                 .catch(error => {
                     setSaving(false);
@@ -188,7 +201,7 @@ function CurrentVitals(props) {
     }
 
     useEffect(() => {
-
+        patientsVitalsSigns()
         getLatestVitals()
     }, []);
     ///GET LIST OF Patients
@@ -273,8 +286,8 @@ function CurrentVitals(props) {
 
 
                                     </InputGroup>
-                                    {vital.pulse > 120 ||vital.pulse < 40  ? (
-                                        <span className={classes.error}>{"Pulse must not be greater than 120 and less than 40"}</span>
+                                    {vital.pulse > 150 ||vital.pulse < 40  ? (
+                                        <span className={classes.error}>{"Pulse must not be greater than 150 and less than 40"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -301,8 +314,8 @@ function CurrentVitals(props) {
 
 
                                     </InputGroup>
-                                    {vital.respiratoryRate > 70 ||  vital.respiratoryRate < 10 ? (
-                                        <span className={classes.error}>{"Respiratory Rate must not be greater than 70 and less than 10"}</span>
+                                    {vital.respiratoryRate > 40 ||  vital.respiratoryRate < 10 ? (
+                                        <span className={classes.error}>{"Respiratory Rate must not be greater than 40 and less than 10"}</span>
                                     ) : ""
                                     }
                                 </FormGroup>
@@ -357,8 +370,8 @@ function CurrentVitals(props) {
                                             {vital.systolic > 200 ? (
                                                 <span className={classes.error}>{"systolic cannot be greater than 200"}</span>
                                             ) : "" }
-                                            {vital.systolic < 90 ? (
-                                                <span className={classes.error}>{"systolic cannot be less than 90"}</span>
+                                            {vital.systolic < 60 ? (
+                                                <span className={classes.error}>{"systolic cannot be less than 60"}</span>
                                             ) : "" }
                                         </div>
                                         <div style={{width:'35%'}}>
@@ -380,8 +393,8 @@ function CurrentVitals(props) {
                                             {vital.diastolic > 200 ? (
                                                 <span className={classes.error}>{"diastolic cannot be greater than 200"}</span>
                                             ) : "" }
-                                            { vital.diastolic < 90  ? (
-                                                <span className={classes.error}>{"diastolic cannot be less than 90"}</span>
+                                            { vital.diastolic < 60  ? (
+                                                <span className={classes.error}>{"diastolic cannot be less than 60"}</span>
                                             ) : "" }
                                         </div>
 

@@ -26,14 +26,9 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    @NotNull
     private Double bodyWeight;
-    @NotNull
     private Double diastolic;
-    @PastOrPresent
-    @NotNull
     private LocalDateTime captureDate;
-    @NotNull
     private Double height;
     private Double temperature;
     private Double pulse;
@@ -46,8 +41,7 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     @JoinColumn(name = "visit_id", nullable = false, referencedColumnName = "uuid")
     private Visit visit;
 
-    @NotNull
-    private Double systolic;
+   private Double systolic;
 
     private Integer archived;
     @NotNull

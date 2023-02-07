@@ -15,10 +15,6 @@ import { Link } from 'react-router-dom'
 import {TiArrowForward} from "react-icons/ti";
 import {MdDashboard} from "react-icons/md";
 
-
-
-
-
 export default function SplitActionButton(props) {
     const [open, setOpen] = React.useState(false);
     const anchorRef = useRef(null);
@@ -54,16 +50,18 @@ export default function SplitActionButton(props) {
                                      size="large"
                         >
                             <Button
-                                color="primary"
+                                //color="primary"
                                 size="small"
-                                aria-label="select merge strategy"
-                                aria-haspopup="menu"
+//                                aria-label="select merge strategy"
+//                                aria-haspopup="menu"
                                 style={{backgroundColor:'rgb(153, 46, 98)',borderColor:'#fff'}}
+                                onClick={props.actions[0].actions[0].editAction}
                             >
                                 {props.actions[0].actions[0].icon}
                             </Button>
                             <Button
                                 style={{backgroundColor:'rgb(153, 46, 98)',borderColor:'#fff'}}
+                                onClick={props.actions[0].actions[0].deleteAction}
                             >
                                 <span style={{fontSize:'0.85em', color:'#fff', fontWeight:'bolder',borderColor:'#fff'}}>{props.actions[0].actions[0].name}</span>
                             </Button>

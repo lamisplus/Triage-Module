@@ -21,21 +21,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VitalSignDto implements Serializable {
     private Long id;
-    @NotNull
     private Double bodyWeight;
-    @NotNull
     private Double diastolic;
     @PastOrPresent
     @NotNull
     @Convert(converter = LocalDateConverter.class)
     private LocalDateTime captureDate;
-    @NotNull
     private Double height;
-    @NotNull
     private Long personId;
 
     private Long visitId;
-    @NotNull
     private Double systolic;
 
     @NotNull
@@ -45,7 +40,6 @@ public class VitalSignDto implements Serializable {
     private Double pulse;
     private Double respiratoryRate;
     private Integer archived;
-    @NotNull
     private Long facilityId;
     private LocalDate visitStartDate;
 }
