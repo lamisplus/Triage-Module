@@ -1,0 +1,18 @@
+basePackage: org.lamisplus.modules.triage
+name: TriageModule
+dependencies: {PatientModule: 1.0.0}
+store: true
+menus:
+  - icon: fa fa-heartbeat
+    disabled: false
+    name: Triage
+    state: triage
+    url: /across/resources/static/triage/index.html
+umdLocation: /across/resources/static/triage/index.html
+webModules:
+  - breadcrumb: Triage
+    name: TriageModule
+    path: triage
+    position: 99
+
+
