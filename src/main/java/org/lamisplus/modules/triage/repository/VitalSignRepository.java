@@ -18,8 +18,11 @@ public interface VitalSignRepository extends CommonJpaRepository<VitalSign, Long
     List<VitalSign> getVitalSignByPersonAndArchived(Person person, Integer archived);
 
     @Query(value ="SELECT * FROM triage_vital_sign WHERE last_modified_date > ?1 and facility_id = ?2", nativeQuery = true)
-    public List<VitalSign> getVitalSignsDueForServerUpload(LocalDateTime dateLastSync, Long facilityId, int archived);
+    List<VitalSign> getAllDueForServerUpload(LocalDateTime dateLastSync, Long facilityId);
 
-    @Query(value ="SELECT * FROM triage_vital_sign where facility_id = 1?", nativeQuery = true)
     List<VitalSign> findAllByFacilityIdAndArchived(Long facilityId, int archived);
+
+    List<VitalSign> findAllByFacilityId(Long facilityId);
+
+    Optional<VitalSign> findByUuidAndFacilityId(String uuid, Long facilityId);
 }
