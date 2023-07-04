@@ -104,8 +104,8 @@
     "react-dual-listbox": "^2.0.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && xcopy /s /y build src\\main\\resources\\views\\static\\triage",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build && xcopy /s /y build src\\main\\resources\\views\\static\\triage",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
