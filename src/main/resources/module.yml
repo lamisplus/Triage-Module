@@ -1,6 +1,6 @@
 basePackage: org.lamisplus.modules.triage
 name: TriageModule
-dependencies: {PatientModule: 1.0.0}
+dependencies: { PatientModule: 2.0.3 }
 store: true
 menus:
   - icon: fa fa-heartbeat
@@ -14,5 +14,3 @@ webModules:
     name: TriageModule
     path: triage
     position: 99
-
-
