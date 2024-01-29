@@ -62,18 +62,27 @@ function PatientCard(props) {
   const toggle = () => setModal(!modal);
 
   const calculate_age = (dob) => {
-    var today = new Date();
-    var dateObject = new Date(dob);
-    var birthDate = new Date(dateObject); // create a date object directlyfrom`dob1`argument
-    var age_now = today.getFullYear() - birthDate.getFullYear();
-    var m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age_now--;
+    const today = new Date();
+    const birthDate = new Date(dob);
+
+    let ageYears = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      ageYears <= 0 &&
+      monthDifference < 0 &&
+      today.getDate() < birthDate.getDate()
+    ) {
+      ageYears--;
     }
-    if (age_now === 0) {
-      return m > 1 ? m + " months" : age_now + " month";
+
+    if (ageYears === 0) {
+      return monthDifference === 0
+        ? "Less than a month"
+        : `${monthDifference} month(s)`;
     }
-    return age_now > 1 ? age_now + " years" : age_now + " year";
+
+    return ageYears === 1 ? "1 year" : `${ageYears} years`;
   };
 
   const CurrentStatus = () => {
