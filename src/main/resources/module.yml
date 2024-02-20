@@ -9,6 +9,7 @@ menus:
     state: triage
     url: /across/resources/static/triage/index.html
 umdLocation: /across/resources/static/triage/index.html
+gitHubLink: https://api.github.com/repos/lamisplus/Triage-Module/releases/latest
 webModules:
   - breadcrumb: Triage
     name: TriageModule
