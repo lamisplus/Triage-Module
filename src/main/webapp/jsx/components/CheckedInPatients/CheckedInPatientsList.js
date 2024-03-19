@@ -242,31 +242,35 @@ const Patients = (props) => {
               },
               { title: "Actions", field: "actions", filtering: false },
             ]}
-            data={patientList.map((row) => ({
-              name: row.firstName + " " + row.surname,
-              hospital_number: getHospitalNumber(row.identifier),
-              encounterDate: moment(row.encounterDate).format(
-                "DD-MM-YYYY hh:mm A"
-              ),
-              sex: row.sex,
-              age:
-                row.dateOfBirth === 0 ||
-                row.dateOfBirth === undefined ||
-                row.dateOfBirth === null ||
-                row.dateOfBirth === ""
-                  ? 0
-                  : calculate_Age(moment(row.dateOfBirth).format("DD-MM-YYYY")),
-              actions: (
-                <div>
-                  {permissions.includes("view_patient") ||
-                  permissions.includes("all_permission") ? (
-                    <SplitActionButton actions={actionItems(row)} />
-                  ) : (
-                    ""
-                  )}
-                </div>
-              ),
-            }))}
+            data={patientList
+              .sort((a, b) => b.id - a.id)
+              .map((row) => ({
+                name: row.firstName + " " + row.surname,
+                hospital_number: getHospitalNumber(row.identifier),
+                encounterDate: moment(row.encounterDate).format(
+                  "DD-MM-YYYY hh:mm A"
+                ),
+                sex: row.sex,
+                age:
+                  row.dateOfBirth === 0 ||
+                  row.dateOfBirth === undefined ||
+                  row.dateOfBirth === null ||
+                  row.dateOfBirth === ""
+                    ? 0
+                    : calculate_Age(
+                        moment(row.dateOfBirth).format("DD-MM-YYYY")
+                      ),
+                actions: (
+                  <div>
+                    {permissions.includes("view_patient") ||
+                    permissions.includes("all_permission") ? (
+                      <SplitActionButton actions={actionItems(row)} />
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ),
+              }))}
             options={{
               headerStyle: {
                 backgroundColor: "#014d88",
