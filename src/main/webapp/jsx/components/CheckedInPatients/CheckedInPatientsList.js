@@ -29,6 +29,7 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { Card, CardBody } from "reactstrap";
 import "react-toastify/dist/ReactToastify.css";
+import { calculate_age } from "../../Utils";
 import { makeStyles } from "@material-ui/core/styles";
 import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
@@ -153,30 +154,6 @@ const Patients = (props) => {
   //   return age_now > 1 ? age_now + " years" : age_now + " year";
   // };
 
-  const calculate_Age = (dob) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
-
-    let ageYears = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-
-    if (
-      ageYears <= 0 &&
-      monthDifference < 0 &&
-      today.getDate() < birthDate.getDate()
-    ) {
-      ageYears--;
-    }
-
-    if (ageYears === 0) {
-      return monthDifference === 0
-        ? "Less than a month"
-        : `${monthDifference} month(s)`;
-    }
-
-    return ageYears === 1 ? "1 year" : `${ageYears} years`;
-  };
-
   const getHospitalNumber = (identifier) => {
     const identifiers = identifier;
     const hospitalNumber = identifiers.identifier.find(
@@ -257,7 +234,7 @@ const Patients = (props) => {
                   row.dateOfBirth === null ||
                   row.dateOfBirth === ""
                     ? 0
-                    : calculate_Age(
+                    : calculate_age(
                         moment(row.dateOfBirth).format("DD-MM-YYYY")
                       ),
                 actions: (
