@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 import ButtonMui from "@material-ui/core/Button";
 import MatButton from "@material-ui/core/Button";
 import { TiArrowBack } from "react-icons/ti";
-
+import { calculate_age } from "../../Utils";
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -61,29 +61,29 @@ function PatientCard(props) {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
-  const calculate_age = (dob) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
+  // const calculate_age = (dob) => {
+  //   const today = new Date();
+  //   const birthDate = new Date(dob);
 
-    let ageYears = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
+  //   let ageYears = today.getFullYear() - birthDate.getFullYear();
+  //   const monthDifference = today.getMonth() - birthDate.getMonth();
 
-    if (
-      ageYears <= 0 &&
-      monthDifference < 0 &&
-      today.getDate() < birthDate.getDate()
-    ) {
-      ageYears--;
-    }
+  //   if (
+  //     ageYears <= 0 &&
+  //     monthDifference < 0 &&
+  //     today.getDate() < birthDate.getDate()
+  //   ) {
+  //     ageYears--;
+  //   }
 
-    if (ageYears === 0) {
-      return monthDifference === 0
-        ? "Less than a month"
-        : `${monthDifference} month(s)`;
-    }
+  //   if (ageYears === 0) {
+  //     return monthDifference === 0
+  //       ? "Less than a month"
+  //       : `${monthDifference} month(s)`;
+  //   }
 
-    return ageYears === 1 ? "1 year" : `${ageYears} years`;
-  };
+  //   return ageYears === 1 ? "1 year" : `${ageYears} years`;
+  // };
 
   const CurrentStatus = () => {
     return (

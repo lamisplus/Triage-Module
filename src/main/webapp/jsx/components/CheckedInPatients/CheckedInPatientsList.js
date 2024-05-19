@@ -235,7 +235,7 @@ const Patients = (props) => {
                   row.dateOfBirth === ""
                     ? 0
                     : calculate_age(
-                        moment(row.dateOfBirth).format("DD-MM-YYYY")
+                        moment(row.dateOfBirth).format("YYYY-MM-DD")
                       ),
                 actions: (
                   <div>
