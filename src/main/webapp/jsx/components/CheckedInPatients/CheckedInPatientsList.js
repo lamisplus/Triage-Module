@@ -2,16 +2,9 @@ import React, { useEffect, useState } from "react";
 import MaterialTable from "material-table";
 import axios from "axios";
 import { url as baseUrl, token } from "./../../../../../api";
-import { FaEye, FaUserPlus } from "react-icons/fa";
-import {
-  MdDashboard,
-  MdDeleteForever,
-  MdModeEdit,
-  MdPerson,
-} from "react-icons/md";
+import { MdPerson } from "react-icons/md";
 import { forwardRef } from "react";
 import "semantic-ui-css/semantic.min.css";
-import { Link } from "react-router-dom";
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowUpward from "@material-ui/icons/ArrowUpward";
 import Check from "@material-ui/icons/Check";
@@ -29,11 +22,9 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { Card, CardBody } from "reactstrap";
 import "react-toastify/dist/ReactToastify.css";
-import { calculate_age } from "../../Utils";
+import { calculateAge, getAg, getAge, getAgee } from "../../Utils";
 import { makeStyles } from "@material-ui/core/styles";
-import { Menu, MenuList, MenuButton, MenuItem } from "@reach/menu-button";
 import "@reach/menu-button/styles.css";
-import { Label } from "semantic-ui-react";
 import moment from "moment";
 import SplitActionButton from "../../layouts/SplitActionButton";
 import _ from "lodash";
@@ -102,9 +93,9 @@ const useStyles = makeStyles((theme) => ({
   success: {
     color: "#4BB543 ",
     fontSize: "11px",
+    fontSize: "11px",
   },
 }));
-
 const Patients = (props) => {
   const [patientList, setPatientList] = useState([]);
   const [patientObj, setpatientObj] = useState([]);
@@ -133,26 +124,10 @@ const Patients = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        //console.log(response);
         setPatientList(_.uniqBy(response.data, "id"));
       })
       .catch((error) => {});
   }
-  // const calculate_age = (dob) => {
-  //   var today = new Date();
-  //   var dateParts = dob.split("-");
-  //   var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
-  //   var birthDate = new Date(dateObject); // create a date object directlyfrom`dob1`argument
-  //   var age_now = today.getFullYear() - birthDate.getFullYear();
-  //   var m = today.getMonth() - birthDate.getMonth();
-  //   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-  //     age_now--;
-  //   }
-  //   if (age_now === 0) {
-  //     return m > 1 ? m + " months" : age_now + " month";
-  //   }
-  //   return age_now > 1 ? age_now + " years" : age_now + " year";
-  // };
 
   const getHospitalNumber = (identifier) => {
     const identifiers = identifier;
@@ -176,17 +151,6 @@ const Patients = (props) => {
               state: { patientObj: row, permissions: permissions },
             },
           },
-          /*                {...(permissions.includes('view_patient') || permissions.includes("all_permission")&&
-                        {
-                            name:'Patient Dashboard',
-                            type:'link',
-                            icon:<MdPerson size="20" color='rgb(1, 77, 136)' />,
-                            to:{
-                                pathname: "/patient-dashboard",
-                                state: { patientObj: row , permissions:permissions  }
-                            }
-                        }
-                    )},*/
         ],
       },
     ];
@@ -200,7 +164,6 @@ const Patients = (props) => {
             icons={tableIcons}
             title="Checked-In Patients"
             columns={[
-              // { title: " ID", field: "Id" },
               {
                 title: "Patient Name",
                 field: "name",
@@ -234,7 +197,8 @@ const Patients = (props) => {
                   row.dateOfBirth === null ||
                   row.dateOfBirth === ""
                     ? 0
-                    : calculate_age(
+                    : getAge(
+                        calculateAge,
                         moment(row.dateOfBirth).format("YYYY-MM-DD")
                       ),
                 actions: (

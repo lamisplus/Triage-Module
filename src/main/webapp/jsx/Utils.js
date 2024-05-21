@@ -1,3 +1,16 @@
+export const calculateAge = (date) => {
+  const units = ["years", "months", "days"];
+  for (let x of units) {
+    const count = moment().diff(date, x);
+    if (count === 1) return count + x.replace("s", "");
+    if (count) return count + x;
+  }
+};
+
+export const getAge = (ageCalculator, dob) => {
+  ageCalculator(dob);
+};
+
 export const calculate_age = (dob) => {
   console.log("the date of birth", dob);
   if (dob !== null && dob != "") {
