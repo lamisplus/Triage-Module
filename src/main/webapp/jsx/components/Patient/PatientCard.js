@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
-import classNames from "classnames";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelActions from "@material-ui/core/ExpansionPanelActions";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -11,14 +9,11 @@ import Divider from "@material-ui/core/Divider";
 import { Button, Sticky, Label } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import { Col, Row } from "reactstrap";
-import Moment from "moment";
-import moment from "moment";
 import PostPatient from "./PostPatient";
 import { Link } from "react-router-dom";
-import ButtonMui from "@material-ui/core/Button";
 import MatButton from "@material-ui/core/Button";
 import { TiArrowBack } from "react-icons/ti";
-
+import { calculate_age } from "../../Utils";
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -60,30 +55,6 @@ function PatientCard(props) {
   const [patientObj, setpatientObj] = useState(patientObjs);
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-
-  const calculate_age = (dob) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
-
-    let ageYears = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-
-    if (
-      ageYears <= 0 &&
-      monthDifference < 0 &&
-      today.getDate() < birthDate.getDate()
-    ) {
-      ageYears--;
-    }
-
-    if (ageYears === 0) {
-      return monthDifference === 0
-        ? "Less than a month"
-        : `${monthDifference} month(s)`;
-    }
-
-    return ageYears === 1 ? "1 year" : `${ageYears} years`;
-  };
 
   const CurrentStatus = () => {
     return (
