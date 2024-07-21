@@ -22,7 +22,7 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { Card, CardBody } from "reactstrap";
 import "react-toastify/dist/ReactToastify.css";
-import { calculateAge, getAg, getAge, getAgee } from "../../Utils";
+import { calculateAge, getAg, getAge, calculate_age } from "../../Utils";
 import { makeStyles } from "@material-ui/core/styles";
 import "@reach/menu-button/styles.css";
 import moment from "moment";
@@ -98,7 +98,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 const Patients = (props) => {
   const [patientList, setPatientList] = useState([]);
-  const [patientObj, setpatientObj] = useState([]);
   const [permissions, setPermissions] = useState([]);
   useEffect(() => {
     userPermission();
@@ -114,16 +113,36 @@ const Patients = (props) => {
       })
       .catch((error) => {});
   };
-  useEffect(() => {
-    patients();
-  }, []);
-  ///GET LIST OF Patients
-  async function patients() {
+
+  const getServiceCode = () => {
     axios
-      .get(`${baseUrl}patient/checked-in-by-service/triage-code`, {
+      .get(`${baseUrl}opd-setting`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
+        let data = response.data;
+        let triageCode = data.find(
+          (item) => item.moduleServiceName.toUpperCase() === "TRIAGE"
+        )?.moduleServiceCode;
+        if (triageCode !== null || triageCode !== null) {
+          patients(triageCode);
+        }
+      })
+      .catch((error) => {});
+  };
+
+  useEffect(() => {
+    getServiceCode();
+    // patients();
+  }, []);
+  ///GET LIST OF Patients
+  async function patients(triageCode) {
+    axios
+      .get(`${baseUrl}patient/checked-in-by-service/${triageCode}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        // console.log(response.data);
         setPatientList(_.uniqBy(response.data, "id"));
       })
       .catch((error) => {});
@@ -176,18 +195,18 @@ const Patients = (props) => {
               { title: "Sex", field: "sex", filtering: false },
               { title: "Age", field: "age", filtering: false },
               {
-                title: "Encounter Date",
+                title: "Date of Registration",
                 field: "encounterDate",
                 filtering: false,
               },
               { title: "Actions", field: "actions", filtering: false },
             ]}
             data={patientList
-              .sort((a, b) => b.id - a.id)
+              // .sort((a, b) => b.id > a.id)
               .map((row) => ({
                 name: row.firstName + " " + row.surname,
                 hospital_number: getHospitalNumber(row.identifier),
-                encounterDate: moment(row.encounterDate).format(
+                encounterDate: moment(row.dateOfRegistration).format(
                   "DD-MM-YYYY hh:mm A"
                 ),
                 sex: row.sex,
@@ -197,10 +216,7 @@ const Patients = (props) => {
                   row.dateOfBirth === null ||
                   row.dateOfBirth === ""
                     ? 0
-                    : getAge(
-                        calculateAge,
-                        moment(row.dateOfBirth).format("YYYY-MM-DD")
-                      ),
+                    : calculate_age(row.dateOfBirth),
                 actions: (
                   <div>
                     {permissions.includes("view_patient") ||
