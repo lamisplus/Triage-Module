@@ -98,14 +98,16 @@ function PatientCard(props) {
                 <Row className={"mt-1"}>
                   <Col md={12} className={classes.root2}>
                     <b style={{ fontSize: "25px", color: "rgb(153, 46, 98)" }}>
-                      {patientObj.surname +
-                        ", " +
-                        patientObj.firstName +
-                        " " +
-                        (patientObj.otherName !== null
-                          ? patientObj.otherName
-                          : "")}
-                      <span style={{ color: "green" }}>{": " + "Active"}</span>
+                      {patientObj.fullname}
+                      {patientObj.active === true ? (
+                        <span style={{ color: "green" }}>
+                          {": " + "Active"}
+                        </span>
+                      ) : (
+                        <span style={{ color: "Red" }}>
+                          {": " + "Inactive"}
+                        </span>
+                      )}
                     </b>
                   </Col>
                   <Col
@@ -117,7 +119,7 @@ function PatientCard(props) {
                       {" "}
                       Hospital Number :{" "}
                       <b style={{ color: "#0B72AA" }}>
-                        {getHospitalNumber(patientObj.identifier)}
+                        {patientObj.hospitalNumber}
                       </b>
                     </span>
                   </Col>
@@ -161,9 +163,7 @@ function PatientCard(props) {
                     <span>
                       {" "}
                       Phone Number :{" "}
-                      <b style={{ color: "#0B72AA" }}>
-                        {getPhoneNumber(patientObj.contactPoint)}
-                      </b>
+                      <b style={{ color: "#0B72AA" }}>{patientObj.phone}</b>
                     </span>
                   </Col>
                   <Col
@@ -174,9 +174,7 @@ function PatientCard(props) {
                     <span>
                       {" "}
                       Address :{" "}
-                      <b style={{ color: "#0B72AA" }}>
-                        {getAddress(patientObj.address)}{" "}
-                      </b>
+                      <b style={{ color: "#0B72AA" }}>{patientObj.address} </b>
                     </span>
                   </Col>
                 </Row>

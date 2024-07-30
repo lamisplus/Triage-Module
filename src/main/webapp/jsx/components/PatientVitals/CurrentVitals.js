@@ -226,6 +226,7 @@ function CurrentVitals(props) {
         }
       )
       .then((response) => {
+        console.log(response.data);
         setVisitStartDate(
           new Date(response.data.checkInDate)
             .toISOString()

@@ -5,5 +5,5 @@ export const url =
 
 export const token =
   process.env.NODE_ENV === "development"
-    ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJndWVzdEBsYW1pc3BsdXMub3JnIiwiYXV0aCI6IlN1cGVyIEFkbWluIiwibmFtZSI6Ikd1ZXN0IEd1ZXN0IiwiZXhwIjoxNzIxNTk4NTI3fQ.i5Vm7-T4_fjS_3uq745Q2QfYGQaltN-A6EzzCalBrPhyIZy4lv4WhpWn3E5e6uFYE8kubZv9Yeh5WB_g5moWEw"
+    ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJudXJzZSIsImF1dGgiOiJUcmlhZ2UgTnVyc2UiLCJuYW1lIjoibnVyc2UgbnVyc2UiLCJleHAiOjE3MjIyODUzNDF9.6xD2rGIiy3jP7RFRZiqqWnP-wnsTPXkyPgIJa3TMsyEDzOo1zd048qcdSUMvth4RmJmj1-AebBVYAo3bshHiNA"
     : new URLSearchParams(window.location.search).get("jwt");
