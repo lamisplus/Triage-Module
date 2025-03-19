@@ -72,3 +72,7 @@
 - Mathew Adegbite https://github.com/mathewade 
 - John gichangi https://github.com/gichangi
 - Victor Ajor   https://github.com/AJ-DataFI
+- Ganiyat Yakub https://github.com/Ganiyatyakub
+
+## Special mentions.
+- Aniwange Tertese Amos https://github.com/aniwange33
