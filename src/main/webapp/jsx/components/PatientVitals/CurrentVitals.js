@@ -98,7 +98,7 @@ function CurrentVitals(props) {
   const [currentVitalId, setCurrentVitalId] = useState(null);
   const [today, setToday] = useState(moment().format("YYYY-MM-DDTHH:mm"));
 
-  //console.log("current " + props.currentVitals.id);
+  
 
   const [vital, setVitalSignDto] = useState({
     bodyWeight: "",
@@ -163,7 +163,7 @@ function CurrentVitals(props) {
           setSaving(false);
           props.patientObj.commenced = true;
           toast.success("Vital signs updated successfully");
-          console.log("done");
+         
           //props.toggle()
           //props.patientsVitalsSigns()
           patientsVitalsSigns();
@@ -226,7 +226,7 @@ function CurrentVitals(props) {
         }
       )
       .then((response) => {
-        console.log(response.data);
+    
         setVisitStartDate(
           new Date(response.data.checkInDate)
             .toISOString()
@@ -259,13 +259,7 @@ function CurrentVitals(props) {
         props.setVisitVitalExists(true);
       })
       .catch((error) => {});
-    /*        axios.get(`${baseUrl}patient/visit/visit-by-patient/${props.patientObj.visitId}`,
-            { headers: {"Authorization" : `Bearer ${token}`} }
-            ).then((response)=>{
-                console.log("response.data")
-                console.log(response.data)
-                console.log("response.data")
-        })*/
+ 
   }
   const numberOnly = (e, inputName) => {
     const result = e.target.value.replace(/[^0-9]/gi, "");

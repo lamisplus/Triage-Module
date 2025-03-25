@@ -120,7 +120,7 @@ const Patients = (props) => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        console.log(response.data);
+  
         setPatientList(response.data);
       })
       .catch((error) => {});

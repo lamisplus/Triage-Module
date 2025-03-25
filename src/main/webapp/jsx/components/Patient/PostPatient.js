@@ -64,7 +64,7 @@ let newDate = new Date();
 
 const AddVitals = (props) => {
   const patientObj = props.patientObj;
-  //console.log(patientObj)
+
   const [selectedOption, setSelectedOption] = useState([]);
   let history = useHistory();
   const classes = useStyles();
@@ -100,7 +100,7 @@ const AddVitals = (props) => {
     //     headers: { Authorization: `Bearer ${token}` },
     //   })
     //   .then((response) => {
-    //     console.log(response.data);
+    
     //     setSelectedOption(_.uniq(_.map(response.data, "serviceCode")));
     //   });
   }
@@ -132,7 +132,7 @@ const AddVitals = (props) => {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
-          console.log(response.data);
+         
           setSaving(false);
           props.patientObj.commenced = true;
           toast.success("Patient posted successfully.");

@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AddVitals = (props) => {
   const patientObj = props.patientObj;
-  //console.log(patientObj);
+
   let history = useHistory();
   const classes = useStyles();
   //const [values, setValues] = useState([]);
@@ -94,7 +94,7 @@ const AddVitals = (props) => {
     setVitalSignDto({ ...vital, [e.target.name]: e.target.value });
   };
 
-  //console.log(vital)
+  
   //FORM VALIDATION
   const validate = () => {
     let temp = { ...errors };

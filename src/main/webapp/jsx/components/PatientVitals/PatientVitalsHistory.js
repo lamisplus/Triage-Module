@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Patients = (props) => {
-  console.log("History" + props);
+ 
   //const [patientList, setPatientList] = useState([])
   const [patientObj, setpatientObj] = useState(props.patientObj);
   const [modal, setModal] = useState(false);
@@ -149,7 +149,7 @@ const Patients = (props) => {
   };
 
   const handleDelete = (id) => {
-    //console.log("delete", id)
+   
     axios
       .delete(`${baseUrl}patient/vital-sign/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -172,7 +172,7 @@ const Patients = (props) => {
   };
 
   const edit = (row) => {
-    console.log("edit item", row);
+
     props.setCurrentVitals(row);
     props.setKey("current-Vitals");
   };
