@@ -241,28 +241,29 @@ const Patients = (props) => {
             },
           },
         ]}
-        data={props.patientList.map((row) => ({
-          //Id: manager.id,
-          date: moment(row.captureDate).format("YYYY-MM-DD h:mm a"),
-          pulse: row.pulse,
-          respiratoryRate: row.respiratoryRate,
-          temperature: <p>{row.temperature}&#8451;</p>,
-          bloodPresure:
-            row.systolic !== null ? row.systolic + " /" + row.diastolic : "",
-          Height: row.height !== null ? row.height + " cm" : "",
-          Weight: row.bodyWeight !== null ? row.bodyWeight + " kg" : "",
-          BMI: Math.round(row.bodyWeight / Math.pow(row.height / 100, 2)),
-          actions: (
-            <div>
-              {permissions.includes("edit_vitals") ||
-              permissions.includes("all_permission") ? (
-                <SplitActionButton actions={actionItems(row)} />
-              ) : (
-                ""
-              )}
-            </div>
-          ),
-        }))}
+        data={props.patientList
+          .sort((a, b) => new Date(b.captureDate) - new Date(a.captureDate))
+          .map((row) => ({
+            date: moment(row.captureDate).format("YYYY-MM-DD h:mm a"),
+            pulse: row.pulse,
+            respiratoryRate: row.respiratoryRate,
+            temperature: <p>{row.temperature}&#8451;</p>,
+            bloodPresure:
+              row.systolic !== null ? row.systolic + " /" + row.diastolic : "",
+            Height: row.height !== null ? row.height + " cm" : "",
+            Weight: row.bodyWeight !== null ? row.bodyWeight + " kg" : "",
+            BMI: Math.round(row.bodyWeight / Math.pow(row.height / 100, 2)),
+            actions: (
+              <div>
+                {permissions.includes("edit_vitals") ||
+                permissions.includes("all_permission") ? (
+                  <SplitActionButton actions={actionItems(row)} />
+                ) : (
+                  ""
+                )}
+              </div>
+            ),
+          }))}
         options={{
           headerStyle: {
             backgroundColor: "#014d88",
@@ -279,6 +280,9 @@ const Patients = (props) => {
           pageSizeOptions: [10, 20, 100],
           pageSize: 10,
           debounceInterval: 400,
+          sorting: true,
+          defaultSort: "date",
+          defaultSortDirection: "desc",
         }}
       />
       <AddVitals

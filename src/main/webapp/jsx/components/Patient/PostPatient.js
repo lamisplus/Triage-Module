@@ -115,38 +115,52 @@ const AddVitals = (props) => {
   });
 
   /**** Submit Button Processing  */
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (selectedOption.length > 0) {
-      setSaving(true);
-      let serviceArr = [];
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   if (selectedOption.length > 0) {
+     setSaving(true);
 
-      selectedOption.forEach(function (value, index, array) {
-        serviceArr.push(value);
-      });
-      postServices.personId = patientObj.id;
-      postServices.visitId = patientObj.visitId;
-      postServices.serviceCode = serviceArr;
-      axios
-        .post(`${baseUrl}patient/post`, postServices, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-         
-          setSaving(false);
-          props.patientObj.commenced = true;
-          toast.success("Patient posted successfully.");
-          props.toggle();
-          //props.patientsVitalsSigns()
-        })
-        .catch((error) => {
-          setSaving(false);
-          toast.error("Something went wrong");
-        });
-    } else {
-      toast.error("Kindly select a service to post the patient");
-    }
-  };
+     try {
+      
+       await axios.put(
+         `${baseUrl}patient/visit/checkout/${patientObj.visitId}`,
+         patientObj.visitId,
+         {
+           headers: { Authorization: `Bearer ${token}` },
+         }
+       );
+
+     
+       let serviceArr = [];
+       selectedOption.forEach(function (value, index, array) {
+         serviceArr.push(value);
+       });
+
+       postServices.personId = patientObj.id;
+       postServices.visitId = patientObj.visitId;
+       postServices.serviceCode = serviceArr;
+
+       const response = await axios.post(
+         `${baseUrl}patient/post`,
+         postServices,
+         {
+           headers: { Authorization: `Bearer ${token}` },
+         }
+       );
+
+       setSaving(false);
+       props.patientObj.commenced = true;
+       toast.success("Patient checked out and posted successfully.");
+       props.toggle();
+     } catch (error) {
+       setSaving(false);
+       console.error(error);
+       toast.error("Something went wrong during checkout or posting");
+     }
+   } else {
+     toast.error("Kindly select a service to post the patient");
+   }
+ };
 
   return (
     <div>
@@ -188,20 +202,9 @@ const AddVitals = (props) => {
                     onChange={setSelectedOption}
                     selected={selectedOption}
                   />
-                  {/*
-                                   <Select
-                                        onChange={setSelectedOption}
-                                        value={selectedOption}
-                                        options={services}
-                                        isMulti="true"
-                                        noOptionsMessage="true"
-                                    />
-*/}
                 </div>
-
                 {saving ? <Spinner /> : ""}
                 <br />
-
                 <MatButton
                   type="submit"
                   variant="contained"
