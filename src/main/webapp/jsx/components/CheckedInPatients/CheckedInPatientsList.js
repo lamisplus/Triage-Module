@@ -140,6 +140,8 @@ const Patients = (props) => {
     getServiceCode();
     // patients();
   }, []);
+
+  
   ///GET LIST OF Patients
   async function patients(triageCode) {
     axios

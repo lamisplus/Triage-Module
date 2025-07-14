@@ -32,6 +32,8 @@ public class VitalSignDto implements Serializable {
 
     private Long visitId;
     private Double systolic;
+    private Double oxygenSaturation;
+    private Double levelOfConsciousness;
 
     @NotNull
     @JsonIgnore
@@ -42,4 +44,5 @@ public class VitalSignDto implements Serializable {
     private Integer archived;
     private Long facilityId;
     private LocalDate visitStartDate;
+
 }

@@ -47,7 +47,7 @@ public class VitalSignService {
 	
 	
 	public VitalSignDto registerVitalSign(VitalSignRequestDto vitalSignDto) {
-		log.info("I am in service {}", vitalSignDto.getCaptureDate());
+
 		Long personId = vitalSignDto.getPersonId();
 		Person existingPerson = getExistingPerson(personId);
 		Long visitId = vitalSignDto.getVisitId();
