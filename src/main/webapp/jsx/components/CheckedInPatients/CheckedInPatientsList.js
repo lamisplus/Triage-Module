@@ -125,7 +125,7 @@ const Patients = (props) => {
       .then((response) => {
         let data = response.data;
         let triageCode = data.find(
-          (item) => item.moduleServiceName.toUpperCase() === "TRIAGE"
+          (item) => item.moduleServiceName === "Triage"
         )?.moduleServiceCode;
         if (triageCode !== null || triageCode !== null) {
           patients(triageCode);
@@ -140,6 +140,8 @@ const Patients = (props) => {
     getServiceCode();
     // patients();
   }, []);
+
+  
   ///GET LIST OF Patients
   async function patients(triageCode) {
     axios

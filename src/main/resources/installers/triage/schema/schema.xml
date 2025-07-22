@@ -55,4 +55,11 @@
             );
         </sql>
     </changeSet>
+
+    <changeSet id="20240712-001" author="emmanuel-data-fi">
+        <addColumn tableName="triage_vital_sign">
+            <column name="oxygen_saturation" type="DOUBLE PRECISION"/>
+            <column name="level_of_consciousness" type="DOUBLE PRECISION"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
