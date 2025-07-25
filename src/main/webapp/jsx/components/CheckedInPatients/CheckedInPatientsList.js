@@ -22,12 +22,13 @@ import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
 import { Card, CardBody } from "reactstrap";
 import "react-toastify/dist/ReactToastify.css";
-import { calculateAge, getAg, getAge, getAgee } from "../../Utils";
+
 import { makeStyles } from "@material-ui/core/styles";
 import "@reach/menu-button/styles.css";
 import moment from "moment";
 import SplitActionButton from "../../layouts/SplitActionButton";
 import _ from "lodash";
+import Spinner from "react-bootstrap/Spinner";
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -98,8 +99,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 const Patients = (props) => {
   const [patientList, setPatientList] = useState([]);
-  const [patientObj, setpatientObj] = useState([]);
   const [permissions, setPermissions] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     userPermission();
   }, []);
@@ -114,28 +115,47 @@ const Patients = (props) => {
       })
       .catch((error) => {});
   };
-  useEffect(() => {
-    patients();
-  }, []);
-  ///GET LIST OF Patients
-  async function patients() {
+
+  const getServiceCode = () => {
+    setLoading(true);
     axios
-      .get(`${baseUrl}patient/checked-in-by-service/triage-code`, {
+      .get(`${baseUrl}opd-setting`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        let data = response.data;
+        let triageCode = data.find(
+          (item) => item.moduleServiceName === "Triage"
+        )?.moduleServiceCode;
+        if (triageCode !== null || triageCode !== null) {
+          patients(triageCode);
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    getServiceCode();
+    // patients();
+  }, []);
+
+  
+  ///GET LIST OF Patients
+  async function patients(triageCode) {
+    axios
+      .get(`${baseUrl}patient/checked-in-by-service/${triageCode}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
         setPatientList(_.uniqBy(response.data, "id"));
+        setLoading(false);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        setLoading(false);
+      });
   }
-
-  const getHospitalNumber = (identifier) => {
-    const identifiers = identifier;
-    const hospitalNumber = identifiers.identifier.find(
-      (obj) => obj.type == "HospitalNumber"
-    );
-    return hospitalNumber ? hospitalNumber.value : "";
-  };
 
   function actionItems(row) {
     return [
@@ -160,6 +180,7 @@ const Patients = (props) => {
     <div>
       <Card>
         <CardBody>
+          {loading && <Spinner animation="border" />}
           <MaterialTable
             icons={tableIcons}
             title="Checked-In Patients"
@@ -175,43 +196,25 @@ const Patients = (props) => {
               },
               { title: "Sex", field: "sex", filtering: false },
               { title: "Age", field: "age", filtering: false },
-              {
-                title: "Encounter Date",
-                field: "encounterDate",
-                filtering: false,
-              },
+
               { title: "Actions", field: "actions", filtering: false },
             ]}
-            data={patientList
-              .sort((a, b) => b.id - a.id)
-              .map((row) => ({
-                name: row.firstName + " " + row.surname,
-                hospital_number: getHospitalNumber(row.identifier),
-                encounterDate: moment(row.encounterDate).format(
-                  "DD-MM-YYYY hh:mm A"
-                ),
-                sex: row.sex,
-                age:
-                  row.dateOfBirth === 0 ||
-                  row.dateOfBirth === undefined ||
-                  row.dateOfBirth === null ||
-                  row.dateOfBirth === ""
-                    ? 0
-                    : getAge(
-                        calculateAge,
-                        moment(row.dateOfBirth).format("YYYY-MM-DD")
-                      ),
-                actions: (
-                  <div>
-                    {permissions.includes("view_patient") ||
-                    permissions.includes("all_permission") ? (
-                      <SplitActionButton actions={actionItems(row)} />
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                ),
-              }))}
+            data={patientList.reverse().map((row) => ({
+              name: row.fullname,
+              hospital_number: row.hospitalNumber,
+              sex: row.sex,
+              age: row.age,
+              actions: (
+                <div>
+                  {permissions.includes("view_patient") ||
+                  permissions.includes("all_permission") ? (
+                    <SplitActionButton actions={actionItems(row)} />
+                  ) : (
+                    ""
+                  )}
+                </div>
+              ),
+            }))}
             options={{
               headerStyle: {
                 backgroundColor: "#014d88",

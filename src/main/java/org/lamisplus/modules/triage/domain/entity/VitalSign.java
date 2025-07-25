@@ -33,6 +33,13 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     private Double temperature;
     private Double pulse;
     private Double respiratoryRate;
+
+    @Column(name = "oxygen_saturation")
+    private Double oxygenSaturation;
+
+    @Column(name = "level_of_consciousness")
+    private Double levelOfConsciousness;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "person_uuid", nullable = false, referencedColumnName = "uuid")
     private Person person;
@@ -41,9 +48,10 @@ public class VitalSign extends PatientAuditEntity implements Persistable<Long>, 
     @JoinColumn(name = "visit_id", nullable = false, referencedColumnName = "uuid")
     private Visit visit;
 
-   private Double systolic;
+    private Double systolic;
 
     private Integer archived;
+
     @NotNull
     @Column(name = "uuid", nullable = false, unique = true, updatable = false)
     private String uuid;

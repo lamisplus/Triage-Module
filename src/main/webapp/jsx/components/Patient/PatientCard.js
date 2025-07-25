@@ -14,6 +14,12 @@ import { Link } from "react-router-dom";
 import MatButton from "@material-ui/core/Button";
 import { TiArrowBack } from "react-icons/ti";
 import { calculate_age } from "../../Utils";
+import { Modal } from "react-bootstrap";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { url as baseUrl, token } from "../../../../../api";
+import { Spinner } from "reactstrap";
+
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -54,7 +60,11 @@ function PatientCard(props) {
   const patientObjs = props.patientObj ? props.patientObj : {};
   const [patientObj, setpatientObj] = useState(patientObjs);
   const [modal, setModal] = useState(false);
+  const [checkoutModal, setCheckoutModal] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+
   const toggle = () => setModal(!modal);
+  const toggleCheckoutModal = () => setCheckoutModal(!checkoutModal);
 
   const CurrentStatus = () => {
     return (
@@ -63,6 +73,7 @@ function PatientCard(props) {
       </Label>
     );
   };
+
   const getHospitalNumber = (identifier) => {
     const identifiers = identifier;
     const hospitalNumber = identifiers.identifier.find(
@@ -70,6 +81,7 @@ function PatientCard(props) {
     );
     return hospitalNumber ? hospitalNumber.value : "";
   };
+
   const getPhoneNumber = (identifier) => {
     const identifiers = identifier;
     const phoneNumber = identifiers?.contactPoint?.find(
@@ -77,6 +89,7 @@ function PatientCard(props) {
     );
     return phoneNumber ? phoneNumber.value : "";
   };
+
   const getAddress = (identifier) => {
     const identifiers = identifier;
     const address = identifiers.address.find((obj) => obj.city);
@@ -86,6 +99,37 @@ function PatientCard(props) {
   const PostPatientService = (row) => {
     setpatientObj({ ...patientObj, ...row });
     setModal(!modal);
+  };
+
+  const checkOutPatient = async () => {
+    setCheckingOut(true);
+
+    try {
+      await axios.put(
+        `${baseUrl}patient/visit/checkout/${patientObj.visitId}`,
+        patientObj.visitId,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setCheckingOut(false);
+      setCheckoutModal(false);
+
+      // Update patient object to reflect checkout status
+      setpatientObj({ ...patientObj, checkedOut: true });
+
+      toast.success("Patient checked out successfully.");
+    } catch (error) {
+      setCheckingOut(false);
+      console.error("Checkout error:", error);
+      toast.error("Something went wrong during checkout. Please try again.");
+    }
+  };
+
+  const handleCheckoutClick = (row) => {
+    setpatientObj({ ...patientObj, ...row });
+    setCheckoutModal(true);
   };
 
   return (
@@ -98,14 +142,16 @@ function PatientCard(props) {
                 <Row className={"mt-1"}>
                   <Col md={12} className={classes.root2}>
                     <b style={{ fontSize: "25px", color: "rgb(153, 46, 98)" }}>
-                      {patientObj.surname +
-                        ", " +
-                        patientObj.firstName +
-                        " " +
-                        (patientObj.otherName !== null
-                          ? patientObj.otherName
-                          : "")}
-                      <span style={{ color: "green" }}>{": " + "Active"}</span>
+                      {patientObj.fullname}
+                      {/* {patientObj.active === true ? (
+                        <span style={{ color: "green" }}>
+                          {": " + "Active"}
+                        </span>
+                      ) : (
+                        <span style={{ color: "Red" }}>
+                          {": " + "Inactive"}
+                        </span>
+                      )} */}
                     </b>
                   </Col>
                   <Col
@@ -117,7 +163,7 @@ function PatientCard(props) {
                       {" "}
                       Hospital Number :{" "}
                       <b style={{ color: "#0B72AA" }}>
-                        {getHospitalNumber(patientObj.identifier)}
+                        {patientObj.hospitalNumber}
                       </b>
                     </span>
                   </Col>
@@ -161,9 +207,7 @@ function PatientCard(props) {
                     <span>
                       {" "}
                       Phone Number :{" "}
-                      <b style={{ color: "#0B72AA" }}>
-                        {getPhoneNumber(patientObj.contactPoint)}
-                      </b>
+                      <b style={{ color: "#0B72AA" }}>{patientObj.phone}</b>
                     </span>
                   </Col>
                   <Col
@@ -174,9 +218,7 @@ function PatientCard(props) {
                     <span>
                       {" "}
                       Address :{" "}
-                      <b style={{ color: "#0B72AA" }}>
-                        {getAddress(patientObj.address)}{" "}
-                      </b>
+                      <b style={{ color: "#0B72AA" }}>{patientObj.address} </b>
                     </span>
                   </Col>
                 </Row>
@@ -213,6 +255,17 @@ function PatientCard(props) {
                     >
                       Post Patient
                     </Button>
+                    <Button
+                      floated="right"
+                      style={{
+                        backgroundColor: "#208001",
+                        color: "#fff",
+                        height: "35px",
+                      }}
+                      onClick={() => handleCheckoutClick(patientObj)}
+                    >
+                      Check-Out Patient
+                    </Button>
                   </>
                 )}
               </div>
@@ -223,11 +276,78 @@ function PatientCard(props) {
             expandIcon={<ExpandMoreIcon />}
           ></ExpansionPanelActions>
         </ExpansionPanel>
+
+        {/* Post Patient Modal */}
         <PostPatient
           toggle={toggle}
           showModal={modal}
           patientObj={patientObj}
         />
+
+        {/* Checkout Confirmation Modal */}
+        <Modal
+          show={checkoutModal}
+          onHide={toggleCheckoutModal}
+          className="fade"
+          size="md"
+        >
+          <Modal.Header style={{ backgroundColor: "#fff" }}>
+            <Modal.Title style={{ color: "#992E62", fontWeight: "bold" }}>
+              Confirm Patient Checkout
+            </Modal.Title>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={toggleCheckoutModal}
+              aria-label="Close"
+            ></button>
+          </Modal.Header>
+          <Modal.Body>
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                Are you sure you want to checkout{" "}
+                <strong style={{ color: "#0B72AA" }}>
+                  {patientObj.fullname}
+                </strong>{" "}
+                (Hospital No: <strong>{patientObj.hospitalNumber}</strong>)?
+              </p>
+              <p style={{ fontSize: "14px", color: "#666" }}>
+                This action will end the current visit for this patient.
+              </p>
+            </div>
+          </Modal.Body>
+          <Modal.Footer style={{ justifyContent: "center" }}>
+            <MatButton
+              variant="outlined"
+              onClick={toggleCheckoutModal}
+              style={{
+                marginRight: "10px",
+                borderColor: "#6c757d",
+                color: "#6c757d",
+              }}
+            >
+              Cancel
+            </MatButton>
+            <MatButton
+              variant="contained"
+              onClick={checkOutPatient}
+              disabled={checkingOut}
+              style={{
+                backgroundColor: "#208001",
+                color: "#fff",
+              }}
+            >
+              {checkingOut ? (
+                <>
+                  <Spinner size="sm" style={{ marginRight: "8px" }} />
+                  Checking Out...
+                </>
+              ) : (
+                "Confirm Checkout"
+              )}
+            </MatButton>
+          </Modal.Footer>
+        </Modal>
       </div>
     </Sticky>
   );

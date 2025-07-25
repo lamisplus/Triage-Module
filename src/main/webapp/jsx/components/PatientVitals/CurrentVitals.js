@@ -83,10 +83,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CurrentVitals(props) {
   const patientObj = props.patientObj;
-  const [permissions, setPermissions] = useState([]);
-  let history = useHistory();
   const classes = useStyles();
-  //const [values, setValues] = useState([]);
   const [currentVitals, setCurrentVitals] = useState([]);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
@@ -98,8 +95,6 @@ function CurrentVitals(props) {
   const [currentVitalId, setCurrentVitalId] = useState(null);
   const [today, setToday] = useState(moment().format("YYYY-MM-DDTHH:mm"));
 
-  //console.log("current " + props.currentVitals.id);
-
   const [vital, setVitalSignDto] = useState({
     bodyWeight: "",
     diastolic: "",
@@ -110,6 +105,8 @@ function CurrentVitals(props) {
     respiratoryRate: "",
     systolic: "",
     temperature: "",
+    oxygenSaturation: "",
+    levelOfConsciousness: "",
     visitId: props.patientObj.visitId,
   });
 
@@ -125,8 +122,6 @@ function CurrentVitals(props) {
   //FORM VALIDATION
   const validate = () => {
     let temp = { ...errors };
-    //temp.name = details.name ? "" : "This field is required"
-    //temp.description = details.description ? "" : "This field is required"
     setErrors({
       ...temp,
     });
@@ -141,7 +136,7 @@ function CurrentVitals(props) {
       .then((response) => {
         props.setPatientList(response.data);
       })
-      .catch((error) => {});
+      .catch((error) => { });
   }
 
   /**** Submit Button Processing  */
@@ -151,19 +146,25 @@ function CurrentVitals(props) {
     if (visitVitalStatus) {
       setSaving(true);
 
-      vital.captureDate = moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
-        "yyyy-MM-DD HH:mm"
-      );
+
+      const vitalPayload = {
+        ...vital,
+        captureDate: moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
+          "yyyy-MM-DD HH:mm"
+        ),
+        oxygenSaturation: vital.oxygenSaturation,
+        levelOfConsciousness: vital.levelOfConsciousness
+      }
 
       axios
-        .put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vital, {
+        .put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vitalPayload, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           setSaving(false);
           props.patientObj.commenced = true;
           toast.success("Vital signs updated successfully");
-          console.log("done");
+
           //props.toggle()
           //props.patientsVitalsSigns()
           patientsVitalsSigns();
@@ -175,19 +176,26 @@ function CurrentVitals(props) {
         });
     } else {
       setSaving(true);
-      vital.captureDate = moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
-        "yyyy-MM-DD HH:mm"
-      );
+     
+
+      const vitalPayload = {
+        ...vital,
+        captureDate:  vital.captureDate = moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
+          "yyyy-MM-DD HH:mm"
+        ),
+        oxygenSaturation: vital.oxygenSaturation,
+        levelOfConsciousness: vital.levelOfConsciousness,
+      }
+
       axios
-        .post(`${baseUrl}patient/vital-sign/`, vital, {
+        .post(`${baseUrl}patient/vital-sign/`, vitalPayload, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           setSaving(false);
           props.patientObj.commenced = true;
           toast.success("Vital signs saved successful");
-          //props.toggle()
-          // props.patientsVitalsSigns()
+
 
           props.setVisitVitalExists(true);
           patientsVitalsSigns();
@@ -199,33 +207,25 @@ function CurrentVitals(props) {
         });
     }
   };
-  const userPermission = () => {
-    axios
-      .get(`${baseUrl}account`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        setPermissions(response.data.permissions);
-      })
-      .catch((error) => {});
-  };
+
 
   useEffect(() => {
     patientsVitalsSigns();
     getLatestVitals();
   }, []);
+
   ///GET LIST OF Patients
   async function getLatestVitals() {
     axios
       .get(
-        `${baseUrl}patient/visit/${
-          props.currentVitals?.visitId || props.patientObj.visitId
+        `${baseUrl}patient/visit/${props.currentVitals?.visitId || props.patientObj.visitId
         }`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       )
       .then((response) => {
+
         setVisitStartDate(
           new Date(response.data.checkInDate)
             .toISOString()
@@ -235,8 +235,7 @@ function CurrentVitals(props) {
       });
     axios
       .get(
-        `${baseUrl}patient/vital-sign/visit/${
-          props.currentVitals?.visitId || props.patientObj.visitId
+        `${baseUrl}patient/vital-sign/visit/${props.currentVitals?.visitId || props.patientObj.visitId
         }`,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -257,14 +256,8 @@ function CurrentVitals(props) {
 
         props.setVisitVitalExists(true);
       })
-      .catch((error) => {});
-    /*        axios.get(`${baseUrl}patient/visit/visit-by-patient/${props.patientObj.visitId}`,
-            { headers: {"Authorization" : `Bearer ${token}`} }
-            ).then((response)=>{
-                console.log("response.data")
-                console.log(response.data)
-                console.log("response.data")
-        })*/
+      .catch((error) => { });
+
   }
   const numberOnly = (e, inputName) => {
     const result = e.target.value.replace(/[^0-9]/gi, "");
@@ -354,6 +347,7 @@ function CurrentVitals(props) {
                   )}
                 </FormGroup>
               </div>
+
               <div className="form-group mb-3 col-md-3">
                 <FormGroup>
                   <Label className={classes.label}>Temperature *</Label>
@@ -384,6 +378,7 @@ function CurrentVitals(props) {
                   )}
                 </FormGroup>
               </div>
+
               <div className="form-group mb-3 col-md-4">
                 <FormGroup>
                   <InputGroup>
@@ -465,29 +460,7 @@ function CurrentVitals(props) {
                   </InputGroup>
                 </FormGroup>
               </div>
-              {/*                            <div className="form-group mb-3 col-md-6">
-                                <FormGroup>
-                                    <Label className={classes.label}>Blood Pressure *</Label>
 
-                                    <InputGroup>
-                                        <InputGroupText className={classes.inputGroupText}>
-                                            diastolic (mmHg)
-                                        </InputGroupText>
-                                        <Input
-                                            type="text"
-                                            name="diastolic"
-                                            id="diastolic"
-                                            onChange={handleInputChangeVitalSignDto}
-                                            value={vital.diastolic}
-                                            className={classes.input}
-                                        />
-
-                                    </InputGroup>
-                                    {vital.diastolic > 200 ? (
-                                        <span className={classes.error}>{"Blood Pressure cannot be greater than 200."}</span>
-                                    ) : "" }
-                                </FormGroup>
-                            </div>*/}
               <div className="form-group mb-3 col-md-3">
                 <FormGroup>
                   <Label className={classes.label}>Body Weight *</Label>
@@ -516,6 +489,7 @@ function CurrentVitals(props) {
                   )}
                 </FormGroup>
               </div>
+
               <div className="form-group mb-3 col-md-3">
                 <FormGroup>
                   <Label className={classes.label}>Height *</Label>
@@ -572,6 +546,66 @@ function CurrentVitals(props) {
                   </h3>
                 </div>
               </div>
+
+
+              <div className="form-group mb-3 col-md-3">
+                <FormGroup>
+                  <Label className={classes.label}>Oxygen Saturation *</Label>
+                  <InputGroup>
+                    <InputGroupText className={classes.inputGroupText}>
+                      SpO2
+                    </InputGroupText>
+                    <Input
+                      type="number"
+                      name="oxygenSaturation"
+                      id="oxygenSaturation"
+                      onChange={handleInputChangeVitalSignDto}
+                      max={100}
+                      min={0}
+                      value={vital.oxygenSaturation}
+                      className={classes.input}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
+                    />
+                  </InputGroup>
+
+                  {vital.oxygenSaturation > 100 ? (
+                    <span className={classes.error}>
+                      {"Oxygen saturation cannot be greater than 100."}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </FormGroup>
+              </div>
+
+
+              <div className="form-group mb-3 col-md-3">
+                <FormGroup>
+                  <Label className={classes.label}>Level of Consciousness *</Label>
+                  <InputGroup>
+                    <InputGroupText className={classes.inputGroupText}>
+                      AVPU/GCS
+                    </InputGroupText>
+                    <Input
+                      type="number"
+                      name="levelOfConsciousness"
+                      id="levelOfConsciousness"
+                      onChange={handleInputChangeVitalSignDto}
+                      max={100}
+                      min={0}
+                      value={vital.levelOfConsciousness}
+                      className={classes.input}
+                      onInput={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, "");
+                      }}
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </div>
+
+
             </div>
 
             <div className="row"></div>
@@ -585,7 +619,6 @@ function CurrentVitals(props) {
               className={classes.button}
               startIcon={<SaveIcon />}
               onClick={handleSubmit}
-              //style={{backgroundColor:"#014d88", color:'#fff'}}
               style={{
                 backgroundColor: `${visitVitalStatus ? "green" : "#014d88"}`,
                 color: "#fff",
@@ -611,10 +644,6 @@ function CurrentVitals(props) {
                 <span style={{ textTransform: "capitalize" }}>Cancel</span>
               </MatButton>
             </Link>
-
-            {/*
-                        {" "}<Button  floated='right'  style={{backgroundColor:"#014d88", color:'#fff'}} onClick={() => PostPatientService(patientObj)}>Post Patient</Button>
-*/}
           </form>
         </CardBody>
       </Card>

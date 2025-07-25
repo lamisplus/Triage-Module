@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AddVitals = (props) => {
   const patientObj = props.patientObj;
-  //console.log(patientObj);
+
   let history = useHistory();
   const classes = useStyles();
   //const [values, setValues] = useState([]);
@@ -94,7 +94,7 @@ const AddVitals = (props) => {
     setVitalSignDto({ ...vital, [e.target.name]: e.target.value });
   };
 
-  //console.log(vital)
+  
   //FORM VALIDATION
   const validate = () => {
     let temp = { ...errors };
@@ -154,7 +154,7 @@ const AddVitals = (props) => {
                 <div className="row">
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
-                      <Label>Date Of Vital Signsss</Label>
+                      <Label>Date Of Vital Sign</Label>
                       <InputGroup>
                         <Input
                           type="date"
@@ -167,6 +167,7 @@ const AddVitals = (props) => {
                       </InputGroup>
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Pulse</Label>
@@ -212,6 +213,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Temperature</Label>
@@ -236,6 +238,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Blood Presure</Label>
@@ -258,6 +261,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Blood Presure</Label>
@@ -281,6 +285,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Body Weight</Label>
@@ -303,6 +308,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
                       <Label>Height</Label>
@@ -325,6 +331,7 @@ const AddVitals = (props) => {
                       )}
                     </FormGroup>
                   </div>
+
                 </div>
 
                 {saving ? <Spinner /> : ""}
