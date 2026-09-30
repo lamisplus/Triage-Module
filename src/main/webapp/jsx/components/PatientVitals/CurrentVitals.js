@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardBody,
@@ -12,40 +12,29 @@ import {
 import MatButton from "@material-ui/core/Button";
 import SaveIcon from "@material-ui/icons/Save";
 import CancelIcon from "@material-ui/icons/Cancel";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import axios from "axios";
 import { token, url as baseUrl } from "../../../../../api";
 import { toast } from "react-toastify";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button } from "semantic-ui-react";
-import { Link } from "react-router-dom";
 import moment from "moment";
+import { getHeightRangeWarning, getWeightRangeWarning, calculate_age } from "../../Utils";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    margin: theme.spacing(20),
+    margin: theme.spacing(2),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-  cardBottom: {
-    marginBottom: 20,
-  },
-  Select: {
-    height: 45,
-    width: 350,
-  },
-  button: {
-    margin: theme.spacing(1),
-  },
-
   root: {
     "& > *": {
       margin: theme.spacing(1),
@@ -56,41 +45,73 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     border: "2px solid #014d88",
-    borderRadius: "0px",
+    borderRadius: "4px",
     fontSize: "16px",
     color: "#000",
   },
   error: {
     color: "#f85032",
     fontSize: "11px",
+    marginTop: "4px",
+    display: "block",
   },
   success: {
-    color: "#4BB543 ",
+    color: "#4BB543",
     fontSize: "11px",
   },
   inputGroupText: {
     backgroundColor: "#014d88",
     fontWeight: "bolder",
     color: "#fff",
-    borderRadius: "0px",
+    borderRadius: "4px 0 0 4px",
+    border: "2px solid #014d88",
+    borderRight: "none",
+  },
+  inputGroupTextRight: {
+    backgroundColor: "#992E62",
+    fontWeight: "bolder",
+    color: "#fff",
+    borderRadius: "4px 0 0 4px",
+    border: "2px solid #992E62",
+    borderRight: "none",
+  },
+  inputRightBorder: {
+    border: "2px solid #992E62",
+    borderRadius: "0 4px 4px 0",
+    fontSize: "16px",
+    color: "#000",
   },
   label: {
-    fontSize: "1.1rem",
+    fontSize: "1rem",
     color: "rgb(153, 46, 98)",
     fontWeight: "600",
+    marginBottom: "0.5rem",
+  },
+  bmiBox: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "38px",
+    backgroundColor: "#f8f9fa",
+    border: "2px solid #014d88",
+    borderRadius: "4px",
+    fontSize: "1.2rem",
+    fontWeight: "bold",
+    color: "#014d88",
   },
 }));
 
 function CurrentVitals(props) {
   const patientObj = props.patientObj;
+  const patientAge = calculate_age(patientObj.dateOfBirth);
+
   const classes = useStyles();
-  const [currentVitals, setCurrentVitals] = useState([]);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
   const [bmi, setBMI] = useState(0);
   const [visitVitalStatus, setVisitVitalStatus] = useState(false);
   const [visitStartDate, setVisitStartDate] = useState(
-    new Date().toISOString().substr(0, 10).replace("T", " ")
+      new Date().toISOString().substr(0, 10).replace("T", " ")
   );
   const [currentVitalId, setCurrentVitalId] = useState(null);
   const [today, setToday] = useState(moment().format("YYYY-MM-DDTHH:mm"));
@@ -111,543 +132,422 @@ function CurrentVitals(props) {
   });
 
   const handleInputChangeVitalSignDto = (e) => {
-    setVitalSignDto({ ...vital, [e.target.name]: e.target.value });
-    if (e.target.name == "bodyWeight" || e.target.name == "height") {
-      let height = e.target.name == "height" ? e.target.value : vital.height;
-      let weight =
-        e.target.name == "bodyWeight" ? e.target.value : vital.bodyWeight;
-      setBMI(Math.round(weight / Math.pow(height / 100, 2)));
-    }
-  };
-  //FORM VALIDATION
-  const validate = () => {
-    let temp = { ...errors };
-    setErrors({
-      ...temp,
+    const { name, value } = e.target;
+
+    setVitalSignDto({
+      ...vital,
+      [name]: value,
     });
-    return Object.values(temp).every((x) => x == "");
+
+    if (name === "bodyWeight" || name === "height") {
+      const height = Number(name === "height" ? value : vital.height);
+      const weight = Number(name === "bodyWeight" ? value : vital.bodyWeight);
+
+      if (height > 0 && weight > 0) {
+        const calculatedBMI = Math.round(weight / Math.pow(height / 100, 2));
+        setBMI(calculatedBMI);
+      } else {
+        setBMI("");
+      }
+    }
   };
 
   async function patientsVitalsSigns() {
     axios
-      .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        props.setPatientList(response.data);
-      })
-      .catch((error) => { });
+        .get(`${baseUrl}patient/vital-sign/person/${patientObj.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          props.setPatientList(response.data);
+        })
+        .catch((error) => {});
   }
 
-  /**** Submit Button Processing  */
   const handleSubmit = (e) => {
     e.preventDefault();
-    //If visit has a vital sign update else create new
-    if (visitVitalStatus) {
-      setSaving(true);
 
+    const formattedCaptureDate = moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
+        "YYYY-MM-DD HH:mm"
+    );
 
-      const vitalPayload = {
-        ...vital,
-        captureDate: moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
-          "yyyy-MM-DD HH:mm"
-        ),
-        oxygenSaturation: vital.oxygenSaturation,
-        levelOfConsciousness: vital.levelOfConsciousness
-      }
+    const vitalPayload = {
+      ...vital,
+      captureDate: formattedCaptureDate,
+      oxygenSaturation: vital.oxygenSaturation,
+      levelOfConsciousness: vital.levelOfConsciousness,
+    };
 
-      axios
-        .put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vitalPayload, {
+    setSaving(true);
+
+    const request = visitVitalStatus
+        ? axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vitalPayload, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then((response) => {
-          setSaving(false);
-          props.patientObj.commenced = true;
-          toast.success("Vital signs updated successfully");
-
-          //props.toggle()
-          //props.patientsVitalsSigns()
-          patientsVitalsSigns();
-          props.setKey("vitals-history");
-        })
-        .catch((error) => {
-          setSaving(false);
-          toast.error("Something went wrong");
+        : axios.post(`${baseUrl}patient/vital-sign/`, vitalPayload, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-    } else {
-      setSaving(true);
-     
 
-      const vitalPayload = {
-        ...vital,
-        captureDate:  vital.captureDate = moment(vital.captureDate, "YYYY-MM-DDTHH:mm").format(
-          "yyyy-MM-DD HH:mm"
-        ),
-        oxygenSaturation: vital.oxygenSaturation,
-        levelOfConsciousness: vital.levelOfConsciousness,
-      }
-
-      axios
-        .post(`${baseUrl}patient/vital-sign/`, vitalPayload, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+    request
         .then((response) => {
           setSaving(false);
           props.patientObj.commenced = true;
-          toast.success("Vital signs saved successful");
-
-
+          toast.success(visitVitalStatus ? "Vital signs updated successfully" : "Vital signs saved successfully");
+          patientsVitalsSigns();
           props.setVisitVitalExists(true);
-          patientsVitalsSigns();
           props.setKey("vitals-history");
         })
         .catch((error) => {
           setSaving(false);
           toast.error("Something went wrong");
         });
-    }
   };
-
 
   useEffect(() => {
     patientsVitalsSigns();
     getLatestVitals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  ///GET LIST OF Patients
   async function getLatestVitals() {
+    const visitId = props.currentVitals?.visitId || props.patientObj.visitId;
+
     axios
-      .get(
-        `${baseUrl}patient/visit/${props.currentVitals?.visitId || props.patientObj.visitId
-        }`,
-        {
+        .get(`${baseUrl}patient/visit/${visitId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then((response) => {
+        })
+        .then((response) => {
+          setVisitStartDate(
+              new Date(response.data.checkInDate).toISOString().substr(0, 10).replace("T", " ")
+          );
+        });
 
-        setVisitStartDate(
-          new Date(response.data.checkInDate)
-            .toISOString()
-            .substr(0, 10)
-            .replace("T", " ")
-        );
-      });
     axios
-      .get(
-        `${baseUrl}patient/vital-sign/visit/${props.currentVitals?.visitId || props.patientObj.visitId
-        }`,
-        {
+        .get(`${baseUrl}patient/vital-sign/visit/${visitId}`, {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then((response) => {
-        setVitalSignDto(response.data);
-        setBMI(
-          Math.round(
-            response.data.bodyWeight / Math.pow(response.data.height / 100, 2)
-          )
-        );
-        setVisitVitalStatus(true);
-        setCurrentVitalId(response.data.id);
-        vital.captureDate = moment(response.data.captureDate).format(
-          "YYYY-MM-DDTHH:mm"
-        );
+        })
+        .then((response) => {
+          setVitalSignDto(response.data);
+          setBMI(Math.round(response.data.bodyWeight / Math.pow(response.data.height / 100, 2)));
+          setVisitVitalStatus(true);
+          setCurrentVitalId(response.data.id);
 
-        props.setVisitVitalExists(true);
-      })
-      .catch((error) => { });
+          // Fixed direct state mutation here
+          setVitalSignDto(prev => ({
+            ...prev,
+            captureDate: moment(response.data.captureDate).format("YYYY-MM-DDTHH:mm")
+          }));
 
+          props.setVisitVitalExists(true);
+        })
+        .catch((error) => {});
   }
-  const numberOnly = (e, inputName) => {
-    const result = e.target.value.replace(/[^0-9]/gi, "");
-  };
+
+  const weightWarning = useMemo(
+      () => getWeightRangeWarning(vital.bodyWeight, patientAge),
+      [vital.bodyWeight, patientAge]
+  );
+
+  const heightWarning = useMemo(
+      () => getHeightRangeWarning(vital.height, patientAge),
+      [vital.height, patientAge]
+  );
+
   return (
-    <div className={classes.root}>
-      <Card>
-        <CardBody>
-          <form>
-            <div className="row">
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Date Of Vital Sign *</Label>
-                  <InputGroup>
-                    <Input
-                      type="datetime-local"
-                      name="captureDate"
-                      id="captureDate"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.captureDate}
-                      className={classes.input}
-                      max={today}
-                      min={moment(visitStartDate).format("YYYY-MM-DDTHH:mm")}
-                      required
-                    />
-                  </InputGroup>
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Pulse *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      bmp
-                    </InputGroupText>
-                    <Input
-                      type="text"
-                      name="pulse"
-                      id="pulse"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.pulse}
-                      className={classes.input}
-                      required={true}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-                  {vital.pulse > 150 || vital.pulse < 40 ? (
-                    <span className={classes.error}>
-                      {"Pulse must not be greater than 150 and less than 40"}
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Respiratory Rate *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      bpm
-                    </InputGroupText>
-                    <Input
-                      type="number"
-                      name="respiratoryRate"
-                      id="respiratoryRate"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.respiratoryRate}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-                  {vital.respiratoryRate > 40 || vital.respiratoryRate < 10 ? (
-                    <span className={classes.error}>
-                      {
-                        "Respiratory Rate must not be greater than 40 and less than 10"
-                      }
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Temperature *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      <sup>o</sup>C
-                    </InputGroupText>
-                    <Input
-                      type="text"
-                      name="temperature"
-                      id="temperature"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.temperature}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-                  {vital.temperature > 47 || vital.temperature < 35 ? (
-                    <span className={classes.error}>
-                      {
-                        "Temperature must not be greater than 47 and less than 35"
-                      }
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-4">
-                <FormGroup>
-                  <InputGroup>
-                    <div
-                      style={{
-                        width: "30%",
-                        display: "flex",
-                        alignContent: "flex-start",
-                        alignItems: "center",
-                        paddingRight: "10px",
-                      }}
-                    >
-                      <Label className={classes.label}>Blood Pressure *</Label>
-                    </div>
-                    <div style={{ width: "35%" }}>
-                      <InputGroupText className={classes.inputGroupText}>
-                        systolic(mmHg)
-                      </InputGroupText>
+      <div className={classes.root}>
+        <Card>
+          <CardBody>
+            <form onSubmit={handleSubmit}>
+              {/* ROW 1: Date & Pulse */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Date Of Vital Sign *</Label>
+                    <InputGroup>
                       <Input
-                        type="text"
-                        name="systolic"
-                        id="systolic"
-                        onChange={handleInputChangeVitalSignDto}
-                        value={vital.systolic}
-                        className={classes.input}
-                        onInput={(e) => {
-                          e.target.value = e.target.value.replace(/\D/g, "");
-                        }}
+                          type="datetime-local"
+                          name="captureDate"
+                          id="captureDate"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.captureDate}
+                          className={classes.input}
+                          max={today}
+                          min={moment(visitStartDate).format("YYYY-MM-DDTHH:mm")}
+                          required
                       />
-                      {vital.systolic > 200 ? (
-                        <span className={classes.error}>
-                          {"systolic cannot be greater than 200"}
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                      {vital.systolic < 60 ? (
-                        <span className={classes.error}>
-                          {"systolic cannot be less than 60"}
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                    <div style={{ width: "35%" }}>
-                      <InputGroupText
-                        className={classes.inputGroupText}
-                        style={{ backgroundColor: "#992E62" }}
-                      >
-                        diastolic (mmHg)
-                      </InputGroupText>
+                    </InputGroup>
+                  </FormGroup>
+                </div>
+
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Pulse *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>bpm</InputGroupText>
                       <Input
-                        type="text"
-                        name="diastolic"
-                        id="diastolic"
-                        onChange={handleInputChangeVitalSignDto}
-                        value={vital.diastolic}
-                        className={classes.input}
-                        style={{ border: "2px solid #992E62" }}
-                        onInput={(e) => {
-                          e.target.value = e.target.value.replace(/\D/g, "");
-                        }}
+                          type="text"
+                          name="pulse"
+                          id="pulse"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.pulse}
+                          className={classes.input}
+                          required
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
                       />
-                      {vital.diastolic > 200 ? (
-                        <span className={classes.error}>
-                          {"diastolic cannot be greater than 200"}
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                      {vital.diastolic < 60 ? (
-                        <span className={classes.error}>
-                          {"diastolic cannot be less than 60"}
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  </InputGroup>
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Body Weight *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      kg
-                    </InputGroupText>
-                    <Input
-                      type="text"
-                      name="bodyWeight"
-                      id="bodyWeight"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.bodyWeight}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-                  {vital.bodyWeight > 200 ? (
-                    <span className={classes.error}>
-                      {"Body Weight cannot be greater than 200."}
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Height *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      cm
-                    </InputGroupText>
-                    <Input
-                      type="text"
-                      name="height"
-                      id="height"
-                      onChange={handleInputChangeVitalSignDto}
-                      value={vital.height}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                    <InputGroupText
-                      className={classes.inputGroupText}
-                      style={{ backgroundColor: "#992E62", color: "#fff" }}
-                    >
-                      {vital.height / 100} M
-                    </InputGroupText>
-                  </InputGroup>
-
-                  {vital.height > 300 ? (
-                    <span className={classes.error}>
-                      {"Height cannot be greater than 300."}
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
-              </div>
-
-              <div className="form-group mb-3 col-md-2">
-                <div
-                  style={{
-                    marginTop: "5px",
-                    display: "flex",
-                    alignContent: "flex-start",
-                    alignItems: "center",
-                    height: "100%",
-                    backgroundColor: "#fff",
-                    color: "#014d88 ",
-                    fontSize: "16px",
-                    padding: "15px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <h3 style={{ color: "#014d88", fontSize: "1.2rem" }}>
-                    BMI : <span style={{ color: "#992E62" }}>{bmi}</span>{" "}
-                  </h3>
+                    </InputGroup>
+                    {(vital.pulse > 150 || vital.pulse < 40) && vital.pulse !== "" && (
+                        <span className={classes.error}>Pulse must be between 40 and 150</span>
+                    )}
+                  </FormGroup>
                 </div>
               </div>
 
+              {/* ROW 2: Respiratory Rate & Temperature */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Respiratory Rate *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>bpm</InputGroupText>
+                      <Input
+                          type="text"
+                          name="respiratoryRate"
+                          id="respiratoryRate"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.respiratoryRate}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {(vital.respiratoryRate > 40 || vital.respiratoryRate < 10) && vital.respiratoryRate !== "" && (
+                        <span className={classes.error}>Respiratory Rate must be between 10 and 40</span>
+                    )}
+                  </FormGroup>
+                </div>
 
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Oxygen Saturation *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      SpO2
-                    </InputGroupText>
-                    <Input
-                      type="number"
-                      name="oxygenSaturation"
-                      id="oxygenSaturation"
-                      onChange={handleInputChangeVitalSignDto}
-                      max={100}
-                      min={0}
-                      value={vital.oxygenSaturation}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-
-                  {vital.oxygenSaturation > 100 ? (
-                    <span className={classes.error}>
-                      {"Oxygen saturation cannot be greater than 100."}
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                </FormGroup>
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Temperature *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}><sup>o</sup>C</InputGroupText>
+                      <Input
+                          type="text"
+                          name="temperature"
+                          id="temperature"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.temperature}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {(vital.temperature > 47 || vital.temperature < 35) && vital.temperature !== "" && (
+                        <span className={classes.error}>Temperature must be between 35 and 47</span>
+                    )}
+                  </FormGroup>
+                </div>
               </div>
 
+              {/* ROW 3: Blood Pressure (Split into two proper columns) */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Blood Pressure (Systolic) *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>mmHg</InputGroupText>
+                      <Input
+                          type="text"
+                          name="systolic"
+                          id="systolic"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.systolic}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {vital.systolic > 200 && vital.systolic !== "" && (
+                        <span className={classes.error}>Systolic cannot be greater than 200</span>
+                    )}
+                    {vital.systolic < 60 && vital.systolic !== "" && (
+                        <span className={classes.error}>Systolic cannot be less than 60</span>
+                    )}
+                  </FormGroup>
+                </div>
 
-              <div className="form-group mb-3 col-md-3">
-                <FormGroup>
-                  <Label className={classes.label}>Level of Consciousness *</Label>
-                  <InputGroup>
-                    <InputGroupText className={classes.inputGroupText}>
-                      AVPU/GCS
-                    </InputGroupText>
-                    <Input
-                      type="number"
-                      name="levelOfConsciousness"
-                      id="levelOfConsciousness"
-                      onChange={handleInputChangeVitalSignDto}
-                      max={100}
-                      min={0}
-                      value={vital.levelOfConsciousness}
-                      className={classes.input}
-                      onInput={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, "");
-                      }}
-                    />
-                  </InputGroup>
-                </FormGroup>
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Blood Pressure (Diastolic) *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupTextRight}>mmHg</InputGroupText>
+                      <Input
+                          type="text"
+                          name="diastolic"
+                          id="diastolic"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.diastolic}
+                          className={classes.inputRightBorder}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {vital.diastolic > 200 && vital.diastolic !== "" && (
+                        <span className={classes.error}>Diastolic cannot be greater than 200</span>
+                    )}
+                    {vital.diastolic < 60 && vital.diastolic !== "" && (
+                        <span className={classes.error}>Diastolic cannot be less than 60</span>
+                    )}
+                  </FormGroup>
+                </div>
               </div>
 
+              {/* ROW 4: Body Weight & Height */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Body Weight *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>kg</InputGroupText>
+                      <Input
+                          type="text"
+                          name="bodyWeight"
+                          id="bodyWeight"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.bodyWeight}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {vital.bodyWeight < 1 && vital.bodyWeight !== "" && (
+                        <span className={classes.error}>Body Weight cannot be less than 1.</span>
+                    )}
+                    {weightWarning && (
+                        <Alert severity="warning" style={{ fontSize: "11px", marginTop: "4px", padding: "4px 8px" }}>
+                          {weightWarning}
+                        </Alert>
+                    )}
+                  </FormGroup>
+                </div>
 
-            </div>
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Height *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>cm</InputGroupText>
+                      <Input
+                          type="text"
+                          name="height"
+                          id="height"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.height}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                      <InputGroupText className={classes.inputGroupTextRight} style={{ borderLeft: "none" }}>
+                        {vital.height ? (vital.height / 100).toFixed(2) + " M" : "0.00 M"}
+                      </InputGroupText>
+                    </InputGroup>
+                    {vital.height < 1 && vital.height !== "" && (
+                        <span className={classes.error}>Height cannot be less than 1.</span>
+                    )}
+                    {heightWarning && (
+                        <Alert severity="warning" style={{ fontSize: "11px", marginTop: "4px", padding: "4px 8px" }}>
+                          {heightWarning}
+                        </Alert>
+                    )}
+                  </FormGroup>
+                </div>
+              </div>
 
-            <div className="row"></div>
-            {saving ? <Spinner /> : ""}
-            <br />
+              {/* ROW 5: BMI Display & Oxygen Saturation */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Body Mass Index (BMI)</Label>
+                    <div className={classes.bmiBox}>
+                      BMI : <span style={{ color: "#992E62", marginLeft: "8px" }}>{bmi || "0"}</span>
+                    </div>
+                  </FormGroup>
+                </div>
 
-            <MatButton
-              type="submit"
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              startIcon={<SaveIcon />}
-              onClick={handleSubmit}
-              style={{
-                backgroundColor: `${visitVitalStatus ? "green" : "#014d88"}`,
-                color: "#fff",
-              }}
-            >
-              {!saving ? (
-                <span style={{ textTransform: "capitalize" }}>
-                  {visitVitalStatus ? "Update" : "Save"}
-                </span>
-              ) : (
-                <span style={{ textTransform: "capitalize" }}>
-                  {visitVitalStatus ? "Updating..." : "Saving..."}
-                </span>
-              )}
-            </MatButton>
-            <Link to={"/"}>
-              <MatButton
-                variant="contained"
-                className={classes.button}
-                startIcon={<CancelIcon />}
-                style={{ backgroundColor: "rgb(153, 46, 98)", color: "#fff" }}
-              >
-                <span style={{ textTransform: "capitalize" }}>Cancel</span>
-              </MatButton>
-            </Link>
-          </form>
-        </CardBody>
-      </Card>
-    </div>
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Oxygen Saturation *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>SpO2</InputGroupText>
+                      <Input
+                          type="text"
+                          name="oxygenSaturation"
+                          id="oxygenSaturation"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.oxygenSaturation}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                    {vital.oxygenSaturation > 100 && vital.oxygenSaturation !== "" && (
+                        <span className={classes.error}>Oxygen saturation cannot be greater than 100.</span>
+                    )}
+                  </FormGroup>
+                </div>
+              </div>
+
+              {/* ROW 6: Level of Consciousness */}
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <FormGroup>
+                    <Label className={classes.label}>Level of Consciousness *</Label>
+                    <InputGroup>
+                      <InputGroupText className={classes.inputGroupText}>AVPU/GCS</InputGroupText>
+                      <Input
+                          type="text"
+                          name="levelOfConsciousness"
+                          id="levelOfConsciousness"
+                          onChange={handleInputChangeVitalSignDto}
+                          value={vital.levelOfConsciousness}
+                          className={classes.input}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                      />
+                    </InputGroup>
+                  </FormGroup>
+                </div>
+
+                {/* Empty column to maintain the 2-per-row grid alignment */}
+                <div className="col-md-6 mb-3"></div>
+              </div>
+
+              <div className="row mt-3">
+                <div className="col-12 d-flex align-items-center">
+                  {saving && <Spinner className="mr-3" />}
+                  <MatButton
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      className={classes.button}
+                      startIcon={<SaveIcon />}
+                      style={{
+                        backgroundColor: visitVitalStatus ? "green" : "#014d88",
+                        color: "#fff",
+                      }}
+                      disabled={saving}
+                  >
+                    {saving ? (visitVitalStatus ? "Updating..." : "Saving...") : (visitVitalStatus ? "Update" : "Save")}
+                  </MatButton>
+
+                  <Link to={"/"} style={{ textDecoration: "none" }}>
+                    <MatButton
+                        variant="contained"
+                        className={classes.button}
+                        startIcon={<CancelIcon />}
+                        style={{ backgroundColor: "rgb(153, 46, 98)", color: "#fff" }}
+                        disabled={saving}
+                    >
+                      Cancel
+                    </MatButton>
+                  </Link>
+                </div>
+              </div>
+
+            </form>
+          </CardBody>
+        </Card>
+      </div>
   );
 }
 

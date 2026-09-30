@@ -94,7 +94,6 @@ const useStyles = makeStyles((theme) => ({
   success: {
     color: "#4BB543 ",
     fontSize: "11px",
-    fontSize: "11px",
   },
 }));
 const Patients = (props) => {

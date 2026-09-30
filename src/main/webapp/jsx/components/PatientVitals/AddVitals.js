@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useMemo} from "react";
 import {
   Form,
   Row,
@@ -19,6 +19,8 @@ import { toast } from "react-toastify";
 import { url as baseUrl, token } from "../../../../../api";
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
+import Alert from "@material-ui/lab/Alert";
+import { getWeightRangeWarning, getHeightRangeWarning, calculate_age } from '../../Utils'
 
 import "react-summernote/dist/react-summernote.css"; // import styles
 import { Spinner } from "reactstrap";
@@ -68,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AddVitals = (props) => {
   const patientObj = props.patientObj;
+  const patientAge = calculate_age(patientObj.dateOfBirth);
 
   let history = useHistory();
   const classes = useStyles();
@@ -89,6 +92,16 @@ const AddVitals = (props) => {
     temperature: "",
     visitId: props.patientObj.visitId,
   });
+
+
+   const weightWarning = useMemo(
+         () => getWeightRangeWarning(vital.bodyWeight, patientAge),
+     [vital.bodyWeight, patientAge]
+   );
+   const heightWarning = useMemo(
+         () => getHeightRangeWarning(vital.height, patientAge),
+     [vital.height, patientAge]
+   );
 
   const handleInputChangeVitalSignDto = (e) => {
     setVitalSignDto({ ...vital, [e.target.name]: e.target.value });
@@ -183,7 +196,7 @@ const AddVitals = (props) => {
                       </InputGroup>
                       {vital.pulse > 200 ? (
                         <span className={classes.error}>
-                          {"Body Weight cannot be greater than 200."}
+                          {"Pulse cannot be greater than 200."}
                         </span>
                       ) : (
                         ""
@@ -206,7 +219,7 @@ const AddVitals = (props) => {
                       </InputGroup>
                       {vital.respiratoryRate > 200 ? (
                         <span className={classes.error}>
-                          {"Body Weight cannot be greater than 200."}
+                          {"Respiratory rate cannot be greater than 200."}
                         </span>
                       ) : (
                         ""
@@ -231,7 +244,7 @@ const AddVitals = (props) => {
                       </InputGroup>
                       {vital.temperature > 200 ? (
                         <span className={classes.error}>
-                          {"Body Weight cannot be greater than 200."}
+                          {"Body temperature cannot be greater than 200."}
                         </span>
                       ) : (
                         ""
@@ -241,7 +254,7 @@ const AddVitals = (props) => {
 
                   <div className="form-group mb-3 col-md-6">
                     <FormGroup>
-                      <Label>Blood Presure</Label>
+                      <Label>Blood Pressure</Label>
                       <InputGroup>
                         <InputGroupText>systolic(mmHg)</InputGroupText>
                         <Input
@@ -299,12 +312,17 @@ const AddVitals = (props) => {
                           value={vital.bodyWeight}
                         />
                       </InputGroup>
-                      {vital.bodyWeight > 200 ? (
+                      {vital.bodyWeight < 1 ? (
                         <span className={classes.error}>
-                          {"Body Weight cannot be greater than 200."}
+                          {"Body Weight cannot be less than 1."}
                         </span>
                       ) : (
                         ""
+                      )}
+                      {weightWarning && (
+                          <Alert severity="warning" style={{ fontSize: "11px", marginTop: "4px" }}>
+                            {weightWarning}
+                          </Alert>
                       )}
                     </FormGroup>
                   </div>
@@ -313,7 +331,7 @@ const AddVitals = (props) => {
                     <FormGroup>
                       <Label>Height</Label>
                       <InputGroup>
-                        <InputGroupText>m</InputGroupText>
+                        <InputGroupText>cm</InputGroupText>
                         <Input
                           type="number"
                           name="height"
@@ -322,12 +340,17 @@ const AddVitals = (props) => {
                           value={vital.height}
                         />
                       </InputGroup>
-                      {vital.height > 3 ? (
+                      {vital.height < 1 ? (
                         <span className={classes.error}>
-                          {"Height cannot be greater than 3."}
+                          {"Height cannot be less than 1."}
                         </span>
                       ) : (
                         ""
+                      )}
+                      {heightWarning && (
+                          <Alert severity="warning" style={{ fontSize: "11px", marginTop: "4px" }}>
+                            {heightWarning}
+                          </Alert>
                       )}
                     </FormGroup>
                   </div>
