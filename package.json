@@ -108,7 +108,7 @@
   "scripts": {
     "start": "react-scripts start",
     "jsreport": "jsreport-start",
-    "build": "react-scripts build && cp -r build/* src/main/resources/views/static/triage/",
+    "build": "react-scripts build && mkdir -p src/main/resources/views/static/triage && cp -R build/. src/main/resources/views/static/triage",
     "serve": "serve -s build",
     "run-build": "react-scripts build && serve",
     "test": "react-scripts test --env=jsdom",

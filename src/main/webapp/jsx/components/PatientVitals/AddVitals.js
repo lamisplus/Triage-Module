@@ -20,7 +20,7 @@ import { url as baseUrl, token } from "../../../../../api";
 import { useHistory } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import Alert from "@material-ui/lab/Alert";
-import { getWeightRangeWarning, getHeightRangeWarning, calculate_age } from '../../Utils'
+import { getWeightRangeWarning, getHeightRangeWarning, getAgeInYears } from '../../Utils'
 
 import "react-summernote/dist/react-summernote.css"; // import styles
 import { Spinner } from "reactstrap";
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AddVitals = (props) => {
   const patientObj = props.patientObj;
-  const patientAge = calculate_age(patientObj.dateOfBirth);
+  const patientAge = getAgeInYears(patientObj.dateOfBirth);
 
   let history = useHistory();
   const classes = useStyles();
@@ -99,8 +99,8 @@ const AddVitals = (props) => {
      [vital.bodyWeight, patientAge]
    );
    const heightWarning = useMemo(
-         () => getHeightRangeWarning(vital.height, patientAge),
-     [vital.height, patientAge]
+         () => getHeightRangeWarning(vital.height),
+     [vital.height]
    );
 
   const handleInputChangeVitalSignDto = (e) => {

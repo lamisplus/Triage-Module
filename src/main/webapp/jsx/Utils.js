@@ -58,6 +58,26 @@ export const calculate_age = (dob) => {
   }
 };
 
+export const getAgeInYears = (dob) => {
+  if (dob === null || dob === undefined || dob === "") return null;
+  return moment().diff(moment(dob), "years");
+};
+
+export const getRespiratoryRateRangeWarning = (respiratoryRate) => {
+  if (respiratoryRate === "" || respiratoryRate === null || respiratoryRate === undefined) return null;
+
+  const value = parseFloat(respiratoryRate);
+  if (isNaN(value)) return null;
+
+  if (value < 10) {
+    return "The recorded respiratory rate is below the minimum expected range for the client's age.";
+  }
+  if (value > 40) {
+    return "The recorded respiratory rate is above the maximum expected range for the client's age.";
+  }
+  return null;
+};
+
 export const getWeightRangeWarning = (weightKg, ageYears) => {
   if (ageYears == null || ageYears < 15) return null;
   if (weightKg === "" || weightKg === null || weightKg === undefined) return null;
@@ -75,8 +95,7 @@ export const getWeightRangeWarning = (weightKg, ageYears) => {
 };
 
 
-export const getHeightRangeWarning = (heightCm, ageYears) => {
-  if (ageYears == null || ageYears < 15) return null;
+export const getHeightRangeWarning = (heightCm) => {
   if (heightCm === "" || heightCm === null || heightCm === undefined) return null;
 
   const value = parseFloat(heightCm);

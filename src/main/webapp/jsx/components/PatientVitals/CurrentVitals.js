@@ -18,7 +18,7 @@ import { token, url as baseUrl } from "../../../../../api";
 import { toast } from "react-toastify";
 import { makeStyles } from "@material-ui/core/styles";
 import moment from "moment";
-import { getHeightRangeWarning, getWeightRangeWarning, calculate_age } from "../../Utils";
+import { getHeightRangeWarning, getWeightRangeWarning, getAgeInYears, getRespiratoryRateRangeWarning } from "../../Utils";
 import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
@@ -103,7 +103,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CurrentVitals(props) {
   const patientObj = props.patientObj;
-  const patientAge = calculate_age(patientObj.dateOfBirth);
+  const patientAge = getAgeInYears(patientObj.dateOfBirth);
 
   const classes = useStyles();
   const [saving, setSaving] = useState(false);
@@ -208,6 +208,21 @@ function CurrentVitals(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (props.currentVitals && props.currentVitals.id) {
+      setCurrentVitalId(props.currentVitals.id);
+      setVisitVitalStatus(true);
+      setVitalSignDto((prev) => ({
+        ...prev,
+        ...props.currentVitals,
+        captureDate: moment(props.currentVitals.captureDate).format("YYYY-MM-DDTHH:mm"),
+      }));
+      const w = Number(props.currentVitals.bodyWeight);
+      const h = Number(props.currentVitals.height);
+      setBMI(h > 0 && w > 0 ? Math.round(w / Math.pow(h / 100, 2)) : "");
+    }
+  }, [props.currentVitals]);
+
   async function getLatestVitals() {
     const visitId = props.currentVitals?.visitId || props.patientObj.visitId;
 
@@ -248,8 +263,13 @@ function CurrentVitals(props) {
   );
 
   const heightWarning = useMemo(
-      () => getHeightRangeWarning(vital.height, patientAge),
-      [vital.height, patientAge]
+      () => getHeightRangeWarning(vital.height),
+      [vital.height]
+  );
+
+  const respiratoryRateWarning = useMemo(
+      () => getRespiratoryRateRangeWarning(vital.respiratoryRate),
+      [vital.respiratoryRate]
   );
 
   return (
@@ -318,8 +338,10 @@ function CurrentVitals(props) {
                           onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
                       />
                     </InputGroup>
-                    {(vital.respiratoryRate > 40 || vital.respiratoryRate < 10) && vital.respiratoryRate !== "" && (
-                        <span className={classes.error}>Respiratory Rate must be between 10 and 40</span>
+                    {respiratoryRateWarning && (
+                        <Alert severity="warning" style={{ fontSize: "11px", marginTop: "4px", padding: "4px 8px" }}>
+                          {respiratoryRateWarning}
+                        </Alert>
                     )}
                   </FormGroup>
                 </div>
