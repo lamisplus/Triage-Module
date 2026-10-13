@@ -57,11 +57,27 @@ public class VitalSignService {
 				throw new RecordExistException(VitalSign.class, "id", "" + visitId);
 		}
 		
-		VitalSign vitalSign = convertVitalRequestSignDtoToVitalSignEntity(vitalSignDto);
+		Visit visit = (visitId != null)
+				? getVisit(visitId)
+				: createVisitForPerson(existingPerson, vitalSignDto.getCaptureDate());
+		VitalSign vitalSign = convertVitalRequestSignDtoToVitalSignEntity(vitalSignDto, visit);
 		vitalSign.setUuid(UUID.randomUUID().toString());
 		vitalSign.setArchived(0);
 		vitalSign.setPerson(existingPerson);
 		return convertVitalSignEntityToVitalSignDto(vitalSignRepository.save(vitalSign));
+	}
+
+	private Visit createVisitForPerson(Person person, String captureDate) {
+		Visit visit = new Visit();
+		visit.setPerson(person);
+		visit.setUuid(UUID.randomUUID().toString());
+		visit.setArchived(0);
+		LocalDateTime start = (captureDate != null && !captureDate.isEmpty())
+				? getLocalDateTime(captureDate) : LocalDateTime.now();
+		visit.setVisitStartDate(start);
+		userService.getUserWithRoles()
+				.ifPresent(user -> visit.setFacilityId(user.getCurrentOrganisationUnitId()));
+		return visitRepository.save(visit);
 	}
 	
 	
@@ -148,7 +164,7 @@ public class VitalSignService {
 		return vitalSign;
 	}
 	
-	private VitalSign convertVitalRequestSignDtoToVitalSignEntity(VitalSignRequestDto vitalSignDto) {
+	private VitalSign convertVitalRequestSignDtoToVitalSignEntity(VitalSignRequestDto vitalSignDto, Visit visit) {
 		VitalSign vitalSign = new VitalSign();
 		if (vitalSignDto.getCaptureDate() != null) {
 			LocalDateTime visitCaptureDateTime = getLocalDateTime(vitalSignDto.getCaptureDate());
@@ -161,7 +177,6 @@ public class VitalSignService {
 			vitalSign.setCaptureDate(visitCaptureDateTime);
 		}
 		BeanUtils.copyProperties(vitalSignDto, vitalSign);
-		Visit visit = getVisit(vitalSignDto.getVisitId());
 		userService.getUserWithRoles().ifPresent(user -> vitalSign.setFacilityId(user.getCurrentOrganisationUnitId()));
 		vitalSign.setVisit(visit);
 		return vitalSign;

@@ -241,7 +241,7 @@ function PatientCard(props) {
                     </MatButton>
                   </Button>
                 </Link>
-                {props.visitVitalExists && (
+                {props.visitVitalExists && patientObj.checkedIn && (
                   <>
                     {" "}
                     <Button

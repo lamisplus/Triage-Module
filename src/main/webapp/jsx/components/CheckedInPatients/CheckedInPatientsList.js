@@ -24,6 +24,9 @@ import { Card, CardBody } from "reactstrap";
 import "react-toastify/dist/ReactToastify.css";
 
 import { makeStyles } from "@material-ui/core/styles";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import "@reach/menu-button/styles.css";
 import moment from "moment";
 import SplitActionButton from "../../layouts/SplitActionButton";
@@ -100,6 +103,7 @@ const Patients = (props) => {
   const [patientList, setPatientList] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [enablePII, setEnablePII] = useState(true);
   useEffect(() => {
     userPermission();
   }, []);
@@ -167,13 +171,29 @@ const Patients = (props) => {
             icon: <MdPerson size="22" />,
             to: {
               pathname: "/patient-dashboard",
-              state: { patientObj: row, permissions: permissions },
+              state: { patientObj: { ...row, checkedIn: true }, permissions: permissions },
             },
           },
         ],
       },
     ];
   }
+
+  const PIISelect = () => (
+    <FormGroup className="float-right mr-1">
+      <FormControlLabel
+        control={
+          <Checkbox
+            onChange={() => setEnablePII(!enablePII)}
+            checked={!enablePII}
+            style={{ color: "#014d88", fontWeight: "bold" }}
+          />
+        }
+        label="Show PII"
+        style={{ color: "#014d88", fontWeight: "bolder" }}
+      />
+    </FormGroup>
+  );
 
   return (
     <div>
@@ -182,11 +202,12 @@ const Patients = (props) => {
           {loading && <Spinner animation="border" />}
           <MaterialTable
             icons={tableIcons}
-            title="Checked-In Patients"
+            title={<PIISelect />}
             columns={[
               {
                 title: "Patient Name",
                 field: "name",
+                hidden: enablePII,
               },
               {
                 title: "Hospital Number",

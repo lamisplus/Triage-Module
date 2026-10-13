@@ -114,6 +114,7 @@ function CurrentVitals(props) {
       new Date().toISOString().substr(0, 10).replace("T", " ")
   );
   const [currentVitalId, setCurrentVitalId] = useState(null);
+  const [permissions, setPermissions] = useState([]);
   const [today, setToday] = useState(moment().format("YYYY-MM-DDTHH:mm"));
 
   const [vital, setVitalSignDto] = useState({
@@ -209,6 +210,17 @@ function CurrentVitals(props) {
   }, []);
 
   useEffect(() => {
+    axios
+      .get(`${baseUrl}account`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => setPermissions(response.data.permissions || []))
+      .catch(() => {});
+  }, []);
+
+  const canEditVitals =
+    permissions.includes("edit_vitals") || permissions.includes("all_permission");
+  const readOnly = visitVitalStatus && !canEditVitals;
+
+  useEffect(() => {
     if (props.currentVitals && props.currentVitals.id) {
       setCurrentVitalId(props.currentVitals.id);
       setVisitVitalStatus(true);
@@ -277,6 +289,7 @@ function CurrentVitals(props) {
         <Card>
           <CardBody>
             <form onSubmit={handleSubmit}>
+              <fieldset disabled={readOnly} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
               {/* ROW 1: Date & Pulse */}
               <div className="row">
                 <div className="col-md-6 mb-3">
@@ -534,9 +547,11 @@ function CurrentVitals(props) {
                 <div className="col-md-6 mb-3"></div>
               </div>
 
+              </fieldset>
               <div className="row mt-3">
                 <div className="col-12 d-flex align-items-center">
                   {saving && <Spinner className="mr-3" />}
+                  {!readOnly && (
                   <MatButton
                       type="submit"
                       variant="contained"
@@ -551,6 +566,7 @@ function CurrentVitals(props) {
                   >
                     {saving ? (visitVitalStatus ? "Updating..." : "Saving...") : (visitVitalStatus ? "Update" : "Save")}
                   </MatButton>
+                  )}
 
                   <Link to={"/"} style={{ textDecoration: "none" }}>
                     <MatButton
