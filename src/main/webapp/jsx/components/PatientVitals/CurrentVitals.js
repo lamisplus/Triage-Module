@@ -12,7 +12,6 @@ import {
 import MatButton from "@material-ui/core/Button";
 import SaveIcon from "@material-ui/icons/Save";
 import CancelIcon from "@material-ui/icons/Cancel";
-import { useHistory, Link } from "react-router-dom";
 import axios from "axios";
 import { token, url as baseUrl } from "../../../../../api";
 import { toast } from "react-toastify";
@@ -184,7 +183,7 @@ function CurrentVitals(props) {
         ? axios.put(`${baseUrl}patient/vital-sign/${currentVitalId}`, vitalPayload, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        : axios.post(`${baseUrl}patient/vital-sign/`, vitalPayload, {
+        : axios.post(`${baseUrl}patient/vital-sign/`, { ...vitalPayload, visitId: null }, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -205,7 +204,9 @@ function CurrentVitals(props) {
 
   useEffect(() => {
     patientsVitalsSigns();
-    getLatestVitals();
+    if (props.currentVitals && props.currentVitals.id) {
+      getLatestVitals();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -217,7 +218,7 @@ function CurrentVitals(props) {
   }, []);
 
   const canEditVitals =
-    permissions.includes("edit_vitals") || permissions.includes("all_permission");
+    permissions.includes("view_triage") || permissions.includes("all_permission");
   const readOnly = visitVitalStatus && !canEditVitals;
 
   useEffect(() => {
@@ -324,7 +325,7 @@ function CurrentVitals(props) {
                           value={vital.pulse}
                           className={classes.input}
                           required
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {(vital.pulse > 150 || vital.pulse < 40) && vital.pulse !== "" && (
@@ -348,7 +349,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.respiratoryRate}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {respiratoryRateWarning && (
@@ -371,7 +372,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.temperature}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {(vital.temperature > 47 || vital.temperature < 35) && vital.temperature !== "" && (
@@ -395,7 +396,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.systolic}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {vital.systolic > 200 && vital.systolic !== "" && (
@@ -419,7 +420,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.diastolic}
                           className={classes.inputRightBorder}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {vital.diastolic > 200 && vital.diastolic !== "" && (
@@ -446,7 +447,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.bodyWeight}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {vital.bodyWeight < 1 && vital.bodyWeight !== "" && (
@@ -472,7 +473,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.height}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                       <InputGroupText className={classes.inputGroupTextRight} style={{ borderLeft: "none" }}>
                         {vital.height ? (vital.height / 100).toFixed(2) + " M" : "0.00 M"}
@@ -513,7 +514,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.oxygenSaturation}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                     {vital.oxygenSaturation > 100 && vital.oxygenSaturation !== "" && (
@@ -537,7 +538,7 @@ function CurrentVitals(props) {
                           onChange={handleInputChangeVitalSignDto}
                           value={vital.levelOfConsciousness}
                           className={classes.input}
-                          onInput={(e) => { e.target.value = e.target.value.replace(/\D/g, ""); }}
+                          onInput={(e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1"); }}
                       />
                     </InputGroup>
                   </FormGroup>
@@ -568,17 +569,16 @@ function CurrentVitals(props) {
                   </MatButton>
                   )}
 
-                  <Link to={"/"} style={{ textDecoration: "none" }}>
-                    <MatButton
-                        variant="contained"
-                        className={classes.button}
-                        startIcon={<CancelIcon />}
-                        style={{ backgroundColor: "rgb(153, 46, 98)", color: "#fff" }}
-                        disabled={saving}
-                    >
-                      Cancel
-                    </MatButton>
-                  </Link>
+                  <MatButton
+                      variant="contained"
+                      className={classes.button}
+                      startIcon={<CancelIcon />}
+                      style={{ backgroundColor: "rgb(153, 46, 98)", color: "#fff" }}
+                      disabled={saving}
+                      onClick={() => props.setKey("vitals-history")}
+                  >
+                    Cancel
+                  </MatButton>
                 </div>
               </div>
 

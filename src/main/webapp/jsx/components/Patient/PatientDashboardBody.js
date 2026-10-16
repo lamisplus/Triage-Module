@@ -1,6 +1,7 @@
 import React, { useState, Fragment } from "react";
-import { Card, Col, Row, Tab, Tabs } from "react-bootstrap";
-import CheckedInPatientList from "../CheckedInPatients/CheckedInPatientsList";
+import { Card, Col, Row } from "react-bootstrap";
+import MatButton from "@material-ui/core/Button";
+import AddIcon from "@material-ui/icons/Add";
 import PatientVitalsHistory from "../PatientVitals/PatientVitalsHistory";
 import CurrentVitals from "../PatientVitals/CurrentVitals";
 
@@ -14,44 +15,55 @@ function PatientDashboardBody(props) {
   const [patientList, setPatientList] = useState([]);
   const [currentVitals, setCurrentVitals] = useState({});
 
+  const openCaptureVitals = () => {
+    setCurrentVitals({});
+    setKey("current-Vitals");
+  };
+
   return (
     <Fragment>
       <Row>
         <Col xl={12}>
           <Card style={divStyle}>
             <Card.Body>
-              {/* <!-- Nav tabs --> */}
-              <div className="custom-tab-1">
-                <Tabs
-                  id="controlled-tab-example"
-                  activeKey={key}
-                  onSelect={(k) => setKey(k)}
-                  className="mb-3"
-                >
-                  <Tab eventKey="vitals-history" title="History">
-                    <PatientVitalsHistory
-                      patientObj={patientObj}
-                      patientList={patientList}
-                      setPatientList={setPatientList}
-                      setKey={setKey}
-                      setCurrentVitals={setCurrentVitals}
-                      currentVitals={currentVitals}
-                    />
-                  </Tab>
-                  <Tab eventKey="current-Vitals" title="Capture Vitals">
-                    <CurrentVitals
-                      patientObj={patientObj}
-                      setVisitVitalExists={props.setVisitVitalExists}
-                      setKey={setKey}
-                      setPatientList={setPatientList}
-                      currentVitals={currentVitals}
-                    />
-                  </Tab>
-                  {/*<Tab eventKey="vitals-charts" title="Charts">
-                                        <CurrentVitals patientObj={patientObj} setVisitVitalExists={props.setVisitVitalExists}/>
-                                    </Tab>*/}
-                </Tabs>
-              </div>
+              {key === "vitals-history" ? (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <MatButton
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      onClick={openCaptureVitals}
+                      style={{ backgroundColor: "#014d88", color: "#fff" }}
+                    >
+                      <span style={{ textTransform: "capitalize" }}>
+                        Capture Vitals
+                      </span>
+                    </MatButton>
+                  </div>
+                  <PatientVitalsHistory
+                    patientObj={patientObj}
+                    patientList={patientList}
+                    setPatientList={setPatientList}
+                    setKey={setKey}
+                    setCurrentVitals={setCurrentVitals}
+                    currentVitals={currentVitals}
+                  />
+                </>
+              ) : (
+                <CurrentVitals
+                  patientObj={patientObj}
+                  setVisitVitalExists={props.setVisitVitalExists}
+                  setKey={setKey}
+                  setPatientList={setPatientList}
+                  currentVitals={currentVitals}
+                />
+              )}
             </Card.Body>
           </Card>
         </Col>

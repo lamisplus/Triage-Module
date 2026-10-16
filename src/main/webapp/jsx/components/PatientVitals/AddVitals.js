@@ -188,6 +188,7 @@ const AddVitals = (props) => {
                         <InputGroupText>bmp</InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="pulse"
                           id="pulse"
                           onChange={handleInputChangeVitalSignDto}
@@ -211,6 +212,7 @@ const AddVitals = (props) => {
                         <InputGroupText>bpm</InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="respiratoryRate"
                           id="respiratoryRate"
                           onChange={handleInputChangeVitalSignDto}
@@ -236,6 +238,7 @@ const AddVitals = (props) => {
                         </InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="temperature"
                           id="temperature"
                           onChange={handleInputChangeVitalSignDto}
@@ -259,6 +262,7 @@ const AddVitals = (props) => {
                         <InputGroupText>systolic(mmHg)</InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="systolic"
                           id="systolic"
                           onChange={handleInputChangeVitalSignDto}
@@ -306,6 +310,7 @@ const AddVitals = (props) => {
                         <InputGroupText>kg</InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="bodyWeight"
                           id="bodyWeight"
                           onChange={handleInputChangeVitalSignDto}
@@ -334,6 +339,7 @@ const AddVitals = (props) => {
                         <InputGroupText>cm</InputGroupText>
                         <Input
                           type="number"
+                          step="any"
                           name="height"
                           id="height"
                           onChange={handleInputChangeVitalSignDto}

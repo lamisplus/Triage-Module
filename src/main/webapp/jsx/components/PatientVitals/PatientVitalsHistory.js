@@ -149,26 +149,37 @@ const Patients = (props) => {
   };
 
   const handleDelete = (id) => {
-   
-    axios
-      .delete(`${baseUrl}patient/vital-sign/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((response) => {
-        patientsVitalsSigns();
-        Swal.fire({
-          icon: "success",
-          text: "Vital Sign Deleted Successfully",
-          timer: 1500,
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This vital sign record will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#992E62",
+      cancelButtonColor: "#014d88",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      axios
+        .delete(`${baseUrl}patient/vital-sign/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          patientsVitalsSigns();
+          Swal.fire({
+            icon: "success",
+            text: "Vital Sign Deleted Successfully",
+            timer: 1500,
+          });
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "An error occurred while deleting!!!",
+          });
         });
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "An error occurred while deleting!!!",
-        });
-      });
+    });
   };
 
   const edit = (row) => {
@@ -255,7 +266,7 @@ const Patients = (props) => {
             BMI: Math.round(row.bodyWeight / Math.pow(row.height / 100, 2)),
             actions: (
               <div>
-                {permissions.includes("edit_vitals") ||
+                {permissions.includes("view_triage") ||
                 permissions.includes("all_permission") ? (
                   <SplitActionButton actions={actionItems(row)} />
                 ) : (

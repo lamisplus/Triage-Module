@@ -16,6 +16,9 @@ webModules:
     path: triage
     position: 99
 permissions:
-  - name: View Triage
-    description: View_Triage
+  - name: view_triage
+    description: View Triage
+    moduleName: TriageModule
+  - name: edit_vitals
+    description: Edit Vitals
     moduleName: TriageModule
